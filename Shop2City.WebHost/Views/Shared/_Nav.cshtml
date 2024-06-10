@@ -1,0 +1,32 @@
+﻿<nav id="top" class="htop">
+    <div class="container">
+        <div class="row">
+            <span class="drop-icon visible-sm visible-xs"><i class="fa fa-align-justify"></i></span>
+            <div class="pull-left flip left-top">
+                <div class="links">
+                    <ul>
+                        <li><a class="home_link" title="خانه" asp-area="" asp-controller="Home" asp-action="Index"><span>خانه</span></a></li>
+                        <li class="mobile"><a asp-controller="Home" asp-action="Index">آموزش نصب و اندازه گیری</a></li>
+                        <li class="mobile"><a asp-controller="Home" asp-action="ContactUs">تماس با ما</a></li>
+
+
+                    </ul>
+                </div>
+            </div>
+            <div id="top-links" class="nav pull-right flip">
+                <ul>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li><a asp-controller="Account" asp-action="Logout"> خروج </a></li>
+                        <li><a href="/UserPanel">@User.Identity.Name خوش آمدید.</a></li>
+                    }
+                    else
+                    {
+                        <li><a asp-controller="Account" asp-action="Login">ورود</a></li>
+                        <li><a asp-controller="Account" asp-action="Register">ثبت نام</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>

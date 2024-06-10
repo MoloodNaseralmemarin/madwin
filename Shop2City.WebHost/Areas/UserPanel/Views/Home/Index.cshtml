@@ -1,0 +1,112 @@
+﻿@model OrderViewModel
+@{
+    ViewData["Title"] = "پنل کاربری " + User.Identity.Name;
+}
+
+<div class="container">
+    <!-- Breadcrumb Start-->
+    <ul class="breadcrumb">
+        <li><a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i></a></li>
+        <li><a asp-area="UserPanel" asp-controller="Home" asp-action="Index">پنل کاربری</a></li>
+        <li class="active">سفارش با اندازه دلخواه</li>
+    </ul>
+    <!-- Breadcrumb End-->
+    <div class="row">
+        <partial name="_SideBar" />
+        <!--Middle Part Start-->
+        <div class="col-sm-9" id="content">
+            <h1 class="title">سفارش با اندازه دلخواه</h1>
+            <form class="form-horizontal" asp-action="Index" method="post">
+                <fieldset id="account">
+                    <legend>اطلاعات پرده با سایز دلخواه شما</legend>
+                    <div class="form-group">
+                        <label asp-for="CategoryId" class="col-sm-4 control-label"></label>
+                        <div class="col-sm-6">
+                            <select class="form-control" asp-for="CategoryId" asp-items="@(ViewData["Categories"] as SelectList)"></select>
+                        </div>
+                        </div>
+                    <div class="form-group">
+                        <label asp-for="SubCategoryId" class="col-sm-4 control-label"></label>
+                        <div class="col-sm-6">
+                            <select class="form-control" asp-for="SubCategoryId" asp-items="@(ViewData["SubCategory"] as SelectList)"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Height" class="col-sm-4 control-label"></label>
+                        <div class="col-sm-6">
+                            <input type="text" asp-for="Height" class="form-control" autocomplete="off" pattern="[0-9]*" inputmode="numeric" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Width" class="col-sm-4 control-label"></label>
+                        <div class="col-sm-6">
+                            <input type="text" asp-for="Width" class="form-control" autocomplete="off" pattern="[0-9]*" inputmode="numeric" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Count" class="col-sm-4 control-label"></label>
+                        <div class="col-sm-6">
+                            <input type="text" asp-for="Count" class="form-control" autocomplete="off" pattern="[0-9]*" inputmode="numeric" />
+                        </div>
+                    </div>
+                </fieldset>
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="buttons">
+                    <div class="pull-right">
+                        <button class="btn btn-primary">ثبت سفارش</button>
+                        @if (@ViewBag.resultTotalCost!=null)
+                        {
+                            @ViewBag.resultTotalCost
+                        }
+
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!--Middle Part End -->
+    </div>
+</div>
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            // $('#SubCategoryId').append('<option value="default">انتخاب کنید</option>');
+            $.getJSON("/home/GetSubCategory/" + $("#CategoryId :selected").val(),
+                function (data) {
+                    $.each(data,
+                        function () {
+                            $("#SubCategoryId").append('<option value=' + this.value + '>' + this.text + '</option>');
+
+                        });
+                });
+            $("#Height,#Width,#Count").on("input",
+                function () {
+                    var self = $(this);
+                    self.val(self.val().replace(/\D/g, ""));
+                });
+        });
+        $("#CategoryId").change(function () {
+            $('#SubCategoryId').empty();
+            $.getJSON("/home/GetSubCategory/" + $("#CategoryId :selected").val(),
+                function (data) {
+                    $.each(data,
+                        function () {
+                            $("#SubCategoryId").append('<option value=' + this.value + '>' + this.text + '</option>');
+
+                        });
+                });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                title: 'ماد وین',
+                text: 'مشتری گرامی، پرده آهنربائی (سفارشی) با تور رولینگ و چسب درجه یک صادراتی تولید می گردد.',
+                icon: 'success',
+                confirmButtonText: 'تایید'
+            });
+        });
+    </script>
+}

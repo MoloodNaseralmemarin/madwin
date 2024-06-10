@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href="images/favicon.png" rel="icon" />
+    <title> فروشگاه ماد وین</title>
+    <meta name="description" content="فروش">
+    <!-- CSS Part Start-->
+    <partial name="_CSS"/>
+    <!-- CSS Part End-->
+</head>
+<body>
+<div class="wrapper-wide">
+    <div id="header">
+        <!-- Top Bar Start-->
+        <partial name="_Nav"/>
+        <!-- Top Bar End-->
+        <!-- Header Start-->
+        <header class="header-row">
+            <div class="container">
+                <div class="table-container">
+                    <!-- Logo Start -->
+                    <partial name="_Logo"/>
+                        <!-- Logo End -->
+                        <!-- Mini Cart Start-->
+                        <partial name="_MiniCart" />
+                        <!-- Mini Cart End-->
+                    <!-- جستجو Start-->
+                    <partial name="_Search"/> 
+                    <!-- جستجو End-->
+                </div>
+            </div>
+        </header>
+        <!-- Header End-->
+        <!-- Main آقایانu Start-->
+        @await Component.InvokeAsync("ProductGroupComponent")
+        <!-- Main آقایانu End-->
+    </div>
+    @RenderBody()
+</div>
+
+<!--Footer Start-->
+<partial name="_Footer"/>
+<!--Footer End-->
+    <!-- JS Part Start-->
+        <partial name="_JS"/>
+@await RenderSectionAsync("Scripts", false)
+</body>
+</html>

@@ -1,0 +1,12 @@
+﻿@model IEnumerable<SlideShowViewModel>
+
+    <div class="slideshow single-slider owl-carousel">
+        @foreach (var item in Model)
+        {
+            <div class="item">
+            <a href="#">
+                <img class="img-responsive" src="@item.Link" alt="@item.Alt" title="@item.Title" />
+                </a>
+            </div>
+        }
+    </div>

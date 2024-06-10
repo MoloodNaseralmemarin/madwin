@@ -1,0 +1,67 @@
+﻿@page
+@model Shop2City.WebHost.Pages.Admin.DisCounts.IndexModel
+@{
+    ViewData["Title"] = "لیست تخفیفات";
+}
+<div class="row">
+    <div class="col-lg-12">
+            <h4 class="m-t-0 header-title">لیست تخفیفات</h4>
+            <a class="btn btn-success mb-2" asp-page="Create"><i class="fa fa-plus-circle"></i>&nbsp;<span> افزودن کد تخفیف جدید</span></a>
+
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>عنوان</th>
+                        <th>درصد تخفیف</th>
+                        <th>کد تخفیف</th>
+                        <th>تعداد</th>
+                        <th>تاریخ شروع - تاریخ پایان</th>
+
+                        <th>دستورات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.disCount)
+                    {
+                        <tr>
+                            <td>@if(item.ItemId==true)
+                                {
+                                    <span>سفارش با انداره دلخواه</span>
+                                }
+                                else
+                                {
+                                    <span>سفارش آماده</span>
+                                }
+                            </td>
+                            <td>@item.disCountPercent</td>
+                            <td>@item.disCountCode</td>
+                            <td>@item.useableCount</td>
+                            <td>@item.startDate.ToShamsi() - @item.endDate.ToShamsi() </td>
+
+                            <td>
+                                <a href="/Admin/DisCounts/Edit/@item.Id" class="btn btn-icon waves-effect waves-light btn-warning">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                                <a href="/Admin/DisCounts/Delete/@item.Id" class="btn btn-icon waves-effect waves-light btn-danger">
+                                    <i class="fa fa-remove"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+            <nav>
+                <ul class="pagination pagination-split">
+     @*                @for (var i = 1; i <= Model.disCount.countPage; i++)
+                    {
+                        <li class="page-item @((i==Model.userForAdmin.currentPage)?"active":"")"><a class="page-link @((i==Model.userForAdmin.currentPage)?"active":"")" href="/Admin/Users/Index?pageId=@i">@i</a></li>
+                    } *@
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+</div>
+

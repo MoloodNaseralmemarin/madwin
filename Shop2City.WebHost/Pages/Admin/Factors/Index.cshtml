@@ -1,0 +1,52 @@
+﻿@page
+@model Shop2City.Web.Pages.Admin.Factors.IndexModel
+@{
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card-box">
+            <h4 class="m-t-0 header-title">لیست فاکتور</h4>
+            <form>
+                <div class="form-row align-items-center">
+                    <div class="col-md-7">
+                        <input type="text" class="form-control mb-2" name="FactorId" placeholder="شماره فاکتور">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary mb-2"><i class="fa fa-search"></i></button>
+                        <button type="submit" class="btn btn-primary mb-2"><i class="fa fa-refresh" href="/Admin/Orders"></i></button>
+                    </div>
+                </div>
+            </form>
+            <table class="table table-striped" id="review">
+                <thead>
+                    <tr>
+                        <th>تاریخ ایجاد</th>
+
+                        <td>شماره فاکتور</td>
+                        <th>نام مشتری</th>
+                        <th>قیمت کل فاکتور</th>
+                        <td>مشاهده</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.GetAllFactor)
+                    {
+                    <tr>
+                            <td>@item.createdDate.ToShamsi()</td>
+                            <td>@item.FactorId</td>
+                            <td>@item.User.FirstName @item.User.LastName</td>
+                            <td> @(item.FactorSum.ToString("#,0 ریال"))</td>
+                            <td><a href="/Admin/Factors/ShowFactorDetail/@item.FactorId" title="جزیئات فاکتور"><span class="fa fa-pencil"></span></a></td>
+                    </tr>
+
+
+                }
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+

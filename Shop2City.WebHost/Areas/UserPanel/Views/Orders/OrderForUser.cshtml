@@ -1,0 +1,183 @@
+﻿@model OrderModel
+@{
+    ViewData["Title"] = "سبد خرید";
+    var typePosts = ViewData["TypePost"] as List<TypePost>;
+    int num = 1;
+    decimal sumOrder = 0;
+    if (Model == null)
+    {
+        sumOrder = 0;
+    }
+    else
+    {
+        sumOrder = Model.TotalCost;
+    }
+}
+<div class="container">
+    <!-- Breadcrumb Start-->
+    <ul class="breadcrumb">
+        <li><a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i></a></li>
+        <li><a href="#" title="سبد خرید">سبد خرید</a></li>
+    </ul>
+    <!-- Breadcrumb End-->
+    <div class="row">
+        <!--Right Part Start -->
+        <partial name="_SideBar" />
+        <!--Right Part End -->
+        <!--Middle Part Start-->
+        <div class="col-sm-9" id="content">
+            <h1 class="title">سبد خرید</h1>
+            @if (Model == null)
+            {
+                <div class="alert alert-warning">
+                    شما از قبل فاکتور پرداخت نشده ندارید.
+                </div>
+            }
+            else
+            {
+                @if (!Model.IsFinaly)
+                {
+                    <div class="alert alert-warning">
+                        شما از قبل فاکتور پرداخت نشده دارید، در صورت تمایل نداشتن به پرداخت ، آن محصول را حذف کنید.
+                    </div>
+                    <div class="alert alert-danger text-center mb-5">
+                        <b> تذکر : </b><span> برای ثبت و تایید نهایی فاکتور، دکمه تایید فاکتور را کلیک کنید.</span>
+                    </div>
+                }
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>وضعیت</th>
+                                <th>نام محصول</th>
+                                <th>ارتفاع - عرض</th>
+                                <th>تعداد</th>
+                                <th>قیمت</th>
+                                <th>جمع</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderDetails)
+                            {
+                                <tr>
+                                    <td>@num</td>
+                                    <td>
+                                        @if (!Model.IsFinaly)
+                                        {
+                                            <a class="btn btn-sm btn-danger" asp-controller="Orders" asp-action="DeleteOrder" asp-route-id="@item.OrderId">حذف</a>
+                                            <span class="text-danger">تایید نشده</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-success">تایید شده</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        پرده @item.Order.OrderCategory.Title / @item.Order.OrderSubCategory.Title
+                                    </td>
+                                    <td>
+                                        w: @item.Order.Width - h: @item.Order.Height
+                                    </td>
+                                    <td>
+                                            @item.Order.Count
+                                    </td>
+                                    <td>@item.Order.Cost.ToString("#,0 ریال")</td>
+                                    <td>
+                                            @((item.Order.Count * item.Cost).ToString("#,0 ریال"))
+                                    </td>
+                                </tr>
+                                num++;
+                               
+                            }
+
+                            @if (!Model.IsFinaly)
+                            {
+                                <tr>
+                                    <td colspan="1" class="text-left">
+                                        نحوه ارسال :
+                                    </td>
+                                    <td colspan="5">
+                                        <div class="radio-groups">
+                                            @foreach (var typePost in typePosts)
+                                            {
+
+                                                <input class="form-check-input" style="margin-right:25px" type="radio" name="selection" value="@typePost.TypePostId">
+                                                <label class="form-check-label">@typePost.TypePostTitle</label>
+
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-left">جمع کل : </td>
+                                    <td colspan="3" class="bg bg-success text-center">
+                                        @sumOrder.ToString("#,0ریال")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                @if (!Model.IsFinaly)
+                {
+                    <div class="row">
+
+                        <div class="col-sm-6 col-sm-offset-6">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <td class="text-right"><strong>جمع:</strong></td>
+                                    <td class="text-right"> @sumOrder.ToString("#,0ریال")</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right"><strong>هزینه بسته بندی و ارسال:</strong></td>
+                                    <td class="text-right bold">
+                                        <span class="bold" id="PricePost"> 0 </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right"><strong>قابل پرداخت :</strong></td>
+                                    <td class="text-right" id="totalPrice"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3">
+                                        <a class="btn btn-success btn-block" asp-area="UserPanel" asp-controller="Factors" asp-action="Index" asp-route-id="typePostId">تایید نهایی سفارش</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+
+@section Scripts
+{
+
+    <script>
+        var number = @sumOrder;
+        $(document).ready(function () {
+            $(".radio-groups").each(function () {
+                $(this).find("input[type='radio']").first().prop('checked', true);
+            });
+            $("#totalPrice").html(number.toLocaleString() + "ریال");
+        });
+        $("input:radio[name=selection]").click(function () {
+
+            var value = $(this).val();
+            $.ajax({
+                type: "get",
+                url: "/Home/GetPricePost?typePostId=" + value
+
+            }).done(function (result) {
+                var number = result + @sumOrder;
+                $("#PricePost").html(result.toLocaleString() + "ریال");
+                $("#totalPrice").html(number.toLocaleString() + "ریال");
+            });
+        });
+    </script>
+            </script>
+}

@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "خانه";
+}
+<div id="container">
+    <div class="container">
+        <div class="row">
+            <div id="content" class="col-xs-12">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <!-- Slideshow Start-->
+                        @await Component.InvokeAsync("SlideShowComponent")
+                        <!-- Slideshow End-->
+                    </div>
+                </div>
+                <h3 class="subtitle">پرده طلقی ایرانی</h3>
+                @await Component.InvokeAsync("CategoryOneComponent")
+
+                <h3 class="subtitle">پرده طلقی خارجی</h3>
+                @await Component.InvokeAsync("CategoryTwoComponent")
+
+                <h3 class="subtitle">پرده توری یک لایه</h3>
+                @await Component.InvokeAsync("CategoryThreeComponent")
+
+                <h3 class="subtitle">پرده توری دو لایه</h3>
+                @await Component.InvokeAsync("CategoryFourComponent")
+            </div>
+        </div>
+    </div>
+</div>

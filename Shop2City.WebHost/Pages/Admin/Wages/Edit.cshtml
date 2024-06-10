@@ -1,0 +1,24 @@
+﻿@page "{id}"
+@model Shop2City.Web.Pages.Admin.Wages.CreateModel
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-box">
+            <h4 class="m-t-0 m-b-30 header-title"> درج کارمزد جدید</h4>
+            <form method="post">
+                <input type="hidden" asp-for="editWage.Id"/>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label asp-for="editWage.Value"></label>
+                            <input type="text" class="form-control" asp-for="editWage.Value">
+                            <span class="text-danger" asp-validation-for="editWage.Value"></span>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success" data-toggle="tooltip" title="ذخیره اطلاعات">ذخیره اطلاعات</button>
+                <a asp-page="Create" class="btn btn-info" data-toggle="tooltip" title="پاک کردن">پاک کردن</a>
+                <a asp-page="Index" class="btn btn-primary" data-toggle="tooltip" title="مشاهده لیست کد">بازگشت به فهرست</a>
+            </form>
+        </div>
+    </div>
+</div>

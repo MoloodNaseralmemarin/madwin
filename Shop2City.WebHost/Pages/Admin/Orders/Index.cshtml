@@ -1,0 +1,42 @@
+﻿@page
+@model Shop2City.Web.Pages.Admin.Orders.IndexModel
+@{
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card-box">
+            <h4 class="m-t-0 header-title">لیست سفارش های دریافتی</h4>
+            <table class="table table-striped" id="review">
+                <thead>
+                    <tr>
+                        <th>تاریخ ایجاد</th>
+                        <th>نام مشتری</th>
+                        <td>شماره سفارش - نوع سفارش - اندازه </td>
+                        <th>قیمت کل سفارش</th>
+                        <th>قیمت تخفیف خورده</th>
+                        <td>مشاهده</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.GetAllOrder)
+                    {
+                    <tr>
+                            <td>@item.CreateDate.ToShamsi()</td>
+                            <td>@item.User.FirstName @item.User.LastName</td>
+                            <td>@item.Id - <span class="text-danger">(@item.OrderCategory.Title - @item.OrderSubCategory.Title)</span> <span class="text-info">w: @item.Width - h: @item.Height</span></td>
+                            <td> @item.TotalCost.ToString("#,0 ریال")</td>
+                            <td> @item.DisCountCost.ToString("#,0 ریال")</td>
+                            <td><a href="/Admin/Orders/ShowOrderDetail/@item.Id" title="مشاهده جزئیات"><span class="fa fa-pencil"></span></a></td>
+                    </tr>
+
+
+                }
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+

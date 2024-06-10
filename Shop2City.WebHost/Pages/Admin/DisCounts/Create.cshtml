@@ -1,0 +1,59 @@
+﻿@page
+@model Shop2City.WebHost.Pages.Admin.DisCounts.CreateModel
+@{
+    ViewData["Title"] = "افزودن کد تخفیف جدید";
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-box">
+            <h4 class="m-t-0 m-b-30 header-title">ثبت کد تخفیف جدید</h4>
+
+            <form method="post">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label asp-for="disCount.ItemId"></label>
+                            <select asp-for="disCount.ItemId" class="form-control">
+                                <option value="0">سفارش با انداره دلخواه</option>
+                                <option value="1">سفارش آماده</option>
+                            </select>
+                            <span class="text-danger" asp-validation-for="disCount.disCountCode"></span>
+                        </div>
+                </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label asp-for="disCount.disCountPercent"></label>
+                            <input type="text" class="form-control" asp-for="disCount.disCountPercent">
+                            <span class="text-danger" asp-validation-for="disCount.disCountPercent"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="disCount.disCountCode"></label>
+                            <input type="text" class="form-control" asp-for="disCount.disCountCode">
+                            <span class="text-danger" asp-validation-for="disCount.disCountCode"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="disCount.useableCount"></label>
+                            <input type="text" class="form-control" asp-for="disCount.useableCount">
+                            <span class="text-danger" asp-validation-for="disCount.useableCount"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label asp-for="disCount.startDate"></label>
+                            <input type="text" class="form-control" asp-for="disCount.startDate">
+                            <span class="text-danger" asp-validation-for="disCount.startDate"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="disCount.endDate"></label>
+                            <input type="text" class="form-control" asp-for="disCount.endDate">
+                            <span class="text-danger" asp-validation-for="disCount.endDate"></span>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">ثبت اطلاعات</button>
+            </form>
+        </div>
+    </div>
+</div>

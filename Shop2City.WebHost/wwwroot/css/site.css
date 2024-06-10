@@ -1,0 +1,41 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.UlStatestics li {
+    list-style: none;
+    margin-bottom:5px;
+}
+
+UlStatestics li span {
+    color: red;
+}
+
+.goods-item-desc-count {
+    color: #ef5661;
+    display: flex;
+    justify-content: end;
+    align-items: flex-start;
+    font-weight: 700;
+}
+
+.table-responsive {
+    display: grid;
+    grid-template-rows: repeat(auto-fit, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+}

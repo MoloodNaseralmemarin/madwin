@@ -1,0 +1,31 @@
+﻿@page "{id}"
+@model Shop2City.Web.Pages.Admin.Calculations.EditModel
+<div class="row">
+    <div class="col-md-8">
+        <div class="card-box">
+            <h4 class="m-t-0 m-b-30 header-title">اطلاعات کد تخفیف</h4>
+            <form method="post">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="hidden" asp-for="editCalculation.Id" />
+                            <label asp-for="editCalculation.Name"></label>
+                            <input type="text" class="form-control" asp-for="editCalculation.Name">
+                            <span class="text-danger" asp-validation-for="editCalculation.Name"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="editCalculation.PurchasePrice"></label>
+                            <input type="text" class="form-control" asp-for="editCalculation.PurchasePrice">
+                            <span class="text-danger" asp-validation-for="editCalculation.PurchasePrice"></span>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success" data-toggle="tooltip" title="ذخیره اطلاعات">ذخیره اطلاعات</button>
+                <a asp-page="Create" class="btn btn-info" data-toggle="tooltip" title="پاک کردن">پاک کردن</a>
+                <a asp-page="Index" class="btn btn-primary" data-toggle="tooltip" title="مشاهده لیست کد">بازگشت به فهرست</a>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-4">
+    </div>
+</div>

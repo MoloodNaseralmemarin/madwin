@@ -1,0 +1,69 @@
+﻿@model IEnumerable<FactorDetail>
+@{
+    ViewData["Title"] = "نمایش فاکتورها";
+}
+<div class="container">
+    <!-- Breadcrumb Start-->
+    <ul class="breadcrumb">
+        <li><a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i></a></li>
+        <li><a href="#">سبد خرید</a></li>
+    </ul>
+    <!-- Breadcrumb End-->
+    <div class="row">
+        <!--Right Part Start -->
+        <partial name="_SideBar" />
+        <!--Right Part End -->
+        <!--Middle Part Start-->
+        <div class="col-sm-9" id="content">
+            <h1 class="title">سبد خرید</h1>
+            <div class="alert alert-success"> در صورت بروز هرگونه مشکل در سایت با شماره 09376421351 تماس بگیرید.</div>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>تاریخ</th>
+                            <th>شماره فاکتور</th>
+                            <th>نام محصول</th>
+                            <th>تعداد</th>
+                            <th>قیمت واحد</th>
+                            <th>جمع</th>
+                        </tr>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Factor.createdDate.ToShamsi()</td>
+                                <td>@item.FactorId</td>
+                                <td>@item.Product.Title</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.Price</td>
+                                <td>@item.Factor.FactorSum</td>
+                            </tr>
+                        }
+                    </table>
+
+                <table class="table table-bordered">
+                    <tr>
+                        <td class="text-right"><strong>شماره شبا :</strong></td>
+                        <td class="text-right"> IR120190000000101560253001</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right"><strong> شماره حساب : </strong></td>
+                        <td class="text-right bold">
+                            <span class="bold" id="PricePost"> 6037-6975-7301-5408</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-center">
+                            <strong>
+                                لطفاً پس از پرداخت تصویر فیش واریزی به همراه شماره فاکتور دریافتی از سایت به شماره <span class="text-danger">09180580270</span> در روبیکا / واتساپ / تلگرام ارسال کنید.
+                            </strong>
+                            </td>
+                    </tr>
+
+                </table>
+            </div>
+
+@*             <div class="btn pull-left"><a asp-area="UserPanel" asp-controller="Home" asp-action="Index" class="btn btn-default">سفارش جدید</a></div> *@
+
+        </div>
+    </div>
+</div>

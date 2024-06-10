@@ -1,0 +1,61 @@
+﻿@page
+@inject IFactorService _factorService;
+@inject IOrderService _orderService;
+@inject IUserService _userService;
+
+@model Shop2City.WebHost.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "صفحه مدیریت";
+    var countfactors = _factorService.CountFactors();
+    var countorders = _orderService.CountOrders();
+    var countsmss = _userService.CountSMSs();
+    var countusers = _userService.CountUsers();
+}
+
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card-box info">
+            <div>
+                <div class="wid-u-info">
+                    <h5 class="mt-0 m-b-5">تعداد کل سفارش ها</h5>
+                    <p class="text-muted m-b-5 font-13">@countfactors عدد</p>
+                    <p class="text-muted m-b-5 font-13"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card-box info">
+            <div>
+                <div class="wid-u-info">
+                    <h5 class="mt-0 m-b-5">تعداد کل فاکتورها</h5>
+                    <p class="text-muted m-b-5 font-13">@countorders عدد</p>
+                    <p class="text-muted m-b-5 font-13"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card-box info">
+            <div>
+                <div class="wid-u-info">
+                    <h5 class="mt-0 m-b-5">تعداد کل پیامک های ارسالی</h5>
+                    <p class="text-muted m-b-5 font-13">@countsmss عدد</p>
+                    <p class="text-muted m-b-5 font-13"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card-box info">
+            <div>
+                <div class="wid-u-info">
+                    <h5 class="mt-0 m-b-5"> تعداد مشتری های فعال </h5>
+                    <p class="text-muted m-b-5 font-13">@countusers نفر</p>
+                    <p class="text-muted m-b-5 font-13"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
