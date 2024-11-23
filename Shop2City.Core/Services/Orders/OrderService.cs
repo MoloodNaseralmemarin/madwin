@@ -354,6 +354,8 @@ namespace Shop2City.Core.Services.Orders
             //محاسبه قیمت بعد از اعمال مبلغ تخفیف
             //مبلغ تخفیف از مبلغ کل کم میکنیم 
             //مبلغ کل = تعداد * قیمت محصول
+
+
             order.DisCountCost = order.TotalCost - percent;
             order.TotalCost = order.DisCountCost;
             UpdateOrder(order);
