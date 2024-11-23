@@ -39,6 +39,8 @@ namespace Shop2City.Core.Services.Orders
             //اگر فاکتور باز داشت باید به اون فاکتور اضافه بشه
             //اگر فاکتور باز داشت باید به اون فاکتور اضافه بشه
 
+            //mkk
+
             var order = _context.Factors
                 .FirstOrDefault(o => o.UserId == userId && !o.IsFinaly);
 
