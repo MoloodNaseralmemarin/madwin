@@ -22,28 +22,14 @@ namespace Shop2City.Core.Services.Orders
             _userService = userService;
             _productService = productService;
         }
-
-        public List<OrderModel> GetUserOrdersByUserName(string userName)
+        public async Task<OrderModel> GetOrderForUserPanel(int userId, int orderId)
         {
-            int userId = _userService.GetUserIdByUserName(userName);
-            return _context.Orders
-                 .Include(o => o.OrderCategory)
-                 .Include(o => o.OrderSubCategory)
-                 .Include(o => o.User)
-                .Where(o => o.UserId == userId)
-                .ToList();
-        }
-
-        public OrderModel GetOrderForUserPanel(string userName, int orderId)
-        {
-            int userId = _userService.GetUserIdByUserName(userName);
-
-            return _context.Orders
+            return await _context.Orders
                 .Include(o => o.OrderCategory)
                 .Include(o => o.OrderSubCategory)
                 .Include(f => f.OrderDetails)
                 .Include(o => o.User)
-                .FirstOrDefault(o => o.UserId == userId && o.Id == orderId && !o.IsFinaly);
+                .FirstOrDefaultAsync(o => o.UserId == userId && o.Id == orderId && !o.IsFinaly);
         }
 
         public int AddOrder(string userName, int productId)
@@ -54,7 +40,7 @@ namespace Shop2City.Core.Services.Orders
             //اگر فاکتور باز داشت باید به اون فاکتور اضافه بشه
 
             var order = _context.Factors
-                .FirstOrDefault(o => o.userId == userId && !o.IsFinaly);
+                .FirstOrDefault(o => o.UserId == userId && !o.IsFinaly);
 
             var product = _productService.GetProductByProductId(productId);
 
@@ -64,17 +50,18 @@ namespace Shop2City.Core.Services.Orders
                 //یعنی سفارش بازی ندازه و ثبت سفارش نکرده و باید سفارش جدید ثبت کنید
                 order = new Factor()
                 {
-                    userId = userId,
+                    UserId = userId,
                     IsFinaly = false,
-                    createdDate = DateTime.Now,
+                    CreatedDate = DateTime.Now,
                     FactorSum = product.Price,
+                    
 
                 };
                 _context.Factors.Add(order);
                 _context.SaveChanges();
                 _context.FactorDetails.Add(new FactorDetail
                 {
-                    FactorId = order.FactorId,
+                    FactorId = order.Id,
                     ProductId = productId,
                     Quantity = 1,
                     Price = product.Price,
@@ -87,13 +74,13 @@ namespace Shop2City.Core.Services.Orders
                 //الان باید چک کنیم از کالای انتخاب شده توی فاکتورش هست یا نه 
 
                 FactorDetail detail = _context.FactorDetails
-                    .SingleOrDefault(d => d.FactorId == order.FactorId && d.FactorId == productId);
+                    .SingleOrDefault(d => d.FactorId == order.Id && d.FactorId == productId);
                 // اگر همچنین کالایی وجود نداشت
                 if (detail == null)
                 {
                     detail = new FactorDetail()
                     {
-                        FactorId = order.FactorId,
+                        FactorId = order.Id,
                         ProductId = productId,
                         Quantity = 1,
                         Price = product.Price,
@@ -110,11 +97,11 @@ namespace Shop2City.Core.Services.Orders
                     _context.Update(detail);
                 }
                 _context.SaveChanges();
-                UpdatePriceOrder(order.FactorId);
+                UpdatePriceOrder(order.Id);
             }
 
 
-            return order.FactorId;
+            return order.Id;
 
         }
         #region آپدیت قیمت سفارش
@@ -133,7 +120,7 @@ namespace Shop2City.Core.Services.Orders
         {
             int userId = _userService.GetUserIdByUserName(userName);
             var order = _context.Factors.Include(o => o.FactorDetails).ThenInclude(od => od.Product)
-                .FirstOrDefault(o => o.FactorId == orderId && o.userId == userId);
+                .FirstOrDefault(o => o.Id == orderId && o.UserId == userId);
 
             if (order == null || order.IsFinaly)
             {
@@ -279,15 +266,15 @@ namespace Shop2City.Core.Services.Orders
         }
 
 
-        public int GetCountOrderIsFinaly(string userName)
+        public async Task<int> GetCountOrderIsFinaly(int userId)
         {
-            var userId = _userService.GetUserIdByUserName(userName);
-            var count = _context.Orders
+            var count = await _context.Orders
                 .Where(f => f.IsFinaly && f.UserId == userId)
-                .Count();
-            if (count > 0) return count;
-            return 0;
+                .CountAsync();
+
+            return count > 0 ? count : 0;
         }
+
 
         public int GetCountOrderIsNotFinaly(string userName)
         {
@@ -339,17 +326,18 @@ namespace Shop2City.Core.Services.Orders
         }
 
 
-        public DiscountUseType UseDiscount(int orderId, string code)
+        public async Task<DiscountUseType> UseDiscount(int orderId, string code)
         {
-            var discount = _context.DisCounts.SingleOrDefault(d => d.disCountCode == code);
+            //سفارش با اندازه دلخواه
+            var discount =await _context.DisCounts.SingleOrDefaultAsync(d => d.disCountCode == code && d.Item=="D");
 
             if (discount == null)
                 return DiscountUseType.NotFound;
 
-            //if (discount.startDate != null && discount.startDate > DateTime.Now)
+            //if (discount.startDate < DateTime.Now)
             //    return DiscountUseType.ExpirationDate;
 
-            //if (discount.endDate != null && discount.endDate <= DateTime.Now)
+            //if (discount.endDate <= DateTime.Now)
             //    return DiscountUseType.ExpirationDate;
 
 
@@ -361,9 +349,13 @@ namespace Shop2City.Core.Services.Orders
             if (_context.UserDiscountCodes.Any(d => d.userId == order.Id && d.disCountId == discount.Id))
                 return DiscountUseType.UserUsed;
 
+            //به دست آوردن مبلغ تخفیف
             decimal percent = (order.TotalCost * discount.disCountPercent) / 100;
+            //محاسبه قیمت بعد از اعمال مبلغ تخفیف
+            //مبلغ تخفیف از مبلغ کل کم میکنیم 
+            //مبلغ کل = تعداد * قیمت محصول
             order.DisCountCost = order.TotalCost - percent;
-
+            order.TotalCost = order.DisCountCost;
             UpdateOrder(order);
 
             if (discount.useableCount != null)
@@ -374,16 +366,11 @@ namespace Shop2City.Core.Services.Orders
             _context.DisCounts.Update(discount);
             _context.UserDiscountCodes.Add(new UserDiscountCode()
             {
-                userId = order.Id,
+                userId = order.UserId,
                 disCountId = discount.Id
             });
-             _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             return DiscountUseType.Success;
-        }
-
-        public void AddDiscount(DisCount discount)
-        {
-            throw new NotImplementedException();
         }
 
         public List<DisCount> GetAllDisCounts()
@@ -400,6 +387,16 @@ namespace Shop2City.Core.Services.Orders
         {
             _context.DisCounts.Update(discount);
             _context.SaveChanges();
+        }
+
+        public async Task<List<OrderModel>> GetUserOrdersByUserId(int userId)
+        {
+            return await _context.Orders
+                 .Include(o => o.OrderCategory)
+                 .Include(o => o.OrderSubCategory)
+                 .Include(o => o.User)
+                .Where(o => o.UserId == userId)
+                .ToListAsync();
         }
     }
 }

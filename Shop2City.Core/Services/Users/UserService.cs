@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Shop2City.Core.Convertors;
+using Microsoft.Extensions.Logging;
 using Shop2City.Core.DTOs.Account;
 using Shop2City.Core.DTOs.Users;
-using Shop2City.Core.Generator;
 using Shop2City.Core.Security;
 using Shop2City.DataLayer.Context;
 using Shop2City.DataLayer.Entities;
+using Shop2City.DataLayer.Entities.Orders;
 using Shop2City.DataLayer.Entities.Users;
 
 namespace Shop2City.Core.Services.Users
@@ -14,24 +14,55 @@ namespace Shop2City.Core.Services.Users
     {
 
         private readonly Shop2CityContext _context;
+        private readonly ILogger<UserService> _logger;
 
         #region Ctor
-        public UserService(Shop2CityContext context)
+        public UserService(Shop2CityContext context, ILogger<UserService> logger)
         {
             _context = context;
+            _logger = logger;
         }
         #endregion
-
-     
-
-        public int AddUser(User user)
+        public async Task<int> AddUserAsync(User user)
         {
-            _context.Users.Add(user);
-            _context.SaveChanges();
-            return user.Id;
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user), "User cannot be null");
+            }
+
+            try
+            {
+                if (string.IsNullOrEmpty(user.FirstName) ||
+                    string.IsNullOrEmpty(user.LastName) ||
+                    string.IsNullOrEmpty(user.CellPhone) ||
+                    string.IsNullOrEmpty(user.Address) ||
+                    string.IsNullOrEmpty(user.UserName) ||
+                    string.IsNullOrEmpty(user.Password))
+                {
+                    throw new ArgumentException("User FirstName and LastName and CellPhone and Address and UserName and Password are required.");
+                }
+
+                #region Add user to database
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("User with ID {UserId} added successfully.", user.Id);
+                return user.Id;
+                #endregion
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "An error occurred while adding a user.");
+                throw new ApplicationException("There was an issue saving the user data.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred.");
+                throw new ApplicationException("An unexpected error occurred while adding the user.");
+            }
         }
 
-        public int AddUserFromAdmin(CreateUserViewModel createUser)
+
+        public async Task<int> AddUserFromAdmin(CreateUserViewModel createUser)
         {
             var user = new User
             {
@@ -43,12 +74,12 @@ namespace Shop2City.Core.Services.Users
                 LastName = createUser.lastName,
                 Password = PasswordHelper.EncodePasswordMd5(createUser.password),
                 CreateDate = DateTime.Now,
-                LastUpdateDate=DateTime.Now,
-                Description="توضیحی درج نشده است",
+                LastUpdateDate = DateTime.Now,
+                Description = "توضیحی درج نشده است",
                 UserName = createUser.userName
             };
 
-            return AddUser(user);
+            return await AddUserAsync(user);
         }
 
 
@@ -68,15 +99,15 @@ namespace Shop2City.Core.Services.Users
                 .Any(u => u.UserName == userName && u.Password == hashOldPassword);
         }
 
-        public void DeleteUser(int userId)
+        public async Task DeleteUser(int userId)
         {
-            User user = GetUserByUserId(userId);
+            User user = await GetUserByUserId(userId);
             user.IsDelete = true;
             UpdateUser(user);
         }
-        public void EditUserFromAdmin(EditUserViewModel editUser)
+        public async Task EditUserFromAdmin(EditUserViewModel editUser)
         {
-            var user = GetUserByUserId(editUser.userId);
+            var user =await GetUserByUserId(editUser.userId);
             user.CellPhone = editUser.cellPhone;
             user.TelPhone = editUser.tellPhone;
             user.Address = editUser.address;
@@ -88,7 +119,7 @@ namespace Shop2City.Core.Services.Users
 
         }
 
-       
+
 
         public UserForAdminViewModel GetDeleteUsers(int pageId = 1, string filterEmail = "", string filterUserName = "")
         {
@@ -120,9 +151,9 @@ namespace Shop2City.Core.Services.Users
             return list;
         }
 
-        public InformationUserViewModel GetInformationUser(int userId)
+        public async Task<InformationUserViewModel> GetInformationUser(int userId)
         {
-            var user = GetUserByUserId(userId);
+            var user =await GetUserByUserId(userId);
             InformationUserViewModel informationUser = new InformationUserViewModel();
             informationUser.userName = user.UserName;
             informationUser.registerDate = user.CreateDate;
@@ -144,9 +175,9 @@ namespace Shop2City.Core.Services.Users
 
 
 
-        public User GetUserByUserId(int userId)
+        public async Task<User> GetUserByUserId(int userId)
         {
-            return _context.Users.Find(userId);
+            return await _context.Users.FindAsync(userId);
         }
 
         public User GetUserByUserName(string userName)
@@ -235,20 +266,42 @@ namespace Shop2City.Core.Services.Users
             _context.SaveChanges();
         }
 
-        public void UpdateAddressUser(int userId, string address)
+        public async void UpdateAddressUser(int userId, string address)
         {
-            var user = GetUserByUserId(userId);
+            var user =await GetUserByUserId(userId);
             user.Address = address;
             _context.Users.Update(user);
             _context.SaveChanges();
         }
 
         #region SMS Part
-        public void AddSMS(Sms sms)
+        public async Task AddSMSAsync(Sms sms)
         {
-            _context.Sms.Add(sms);
-            _context.SaveChanges();
+            if (sms == null)
+            {
+                throw new ArgumentNullException(nameof(sms), "Sms object cannot be null");
+            }
+
+            try
+            {
+                // افزودن داده به پایگاه داده
+                await _context.Sms.AddAsync(sms);
+                await _context.SaveChangesAsync(); // ذخیره تغییرات به صورت غیرهمزمان
+            }
+            catch (DbUpdateException ex)
+            {
+                // در صورتی که خطای مربوط به پایگاه داده پیش آید
+                _logger.LogError(ex, "Error occurred while adding SMS to the database.");
+                throw new Exception("An error occurred while saving SMS data. Please try again later.");
+            }
+            catch (Exception ex)
+            {
+                // در صورتی که خطای عمومی رخ دهد
+                _logger.LogError(ex, "Unexpected error occurred while adding SMS.");
+                throw new Exception("An unexpected error occurred. Please try again later.");
+            }
         }
+
 
         public int CountSMSs()
         {
@@ -261,7 +314,57 @@ namespace Shop2City.Core.Services.Users
             var countUser = _context.Users.Count();
             return countUser;
         }
-        #endregion
 
+        public async Task<int> GetUserIdByUserId(int userId)
+        {
+            return await _context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => u.Id)
+                .SingleAsync();
+        }
+
+        public async Task<int> GetUserIdByFactorId(int factorId)
+        {
+            var userId=await _context.Factors
+                .Where(u => u.Id == factorId)
+                .Select(u => u.UserId)
+                .SingleAsync();
+            return userId;
+        }
+
+        public async Task<int> GetUserIdByOrderId(int orderId)
+        {
+            var userId = await _context.Orders
+                .Where(u => u.Id == orderId)
+                .Select(u => u.UserId)
+                .SingleAsync();
+            return userId;
+        }
+
+        public async Task<string> GetCellPhoneByUserId(int userId)
+        {
+            var cellPhone = await _context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => u.CellPhone)
+                .SingleAsync();
+            return cellPhone;
+        }
+
+        void IUserService.DeleteUser(int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<UserForAdminViewModel> IUserService.GetDeleteUsers(int pageId, string filterEmail, string filterUserName)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IUserService.EditUserFromAdmin(EditUserViewModel editUser)
+        {
+            throw new NotImplementedException();
+        }
     }
+    #endregion
+
 }

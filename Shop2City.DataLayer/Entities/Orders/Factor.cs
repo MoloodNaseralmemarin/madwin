@@ -6,7 +6,7 @@ using Shop2City.DataLayer.Entities.Users;
 namespace Shop2City.DataLayer.Entities.Orders
 {
 
-    [Table("Factors", Schema = "Orders")]
+    [Table("Factors", Schema = "Factors")]
     public class Factor
     {
         #region ctor
@@ -18,20 +18,20 @@ namespace Shop2City.DataLayer.Entities.Orders
         #region Field
         [Key]
         [Display(Name = "شناسه")]
-        public int FactorId { get; set; }
+        public int Id { get; set; }
 
         [Display(Name = "تاریخ ثبت ")]
         [Required]
-        public DateTime createdDate { get; set; }
+        public DateTime CreatedDate { get; set; }
 
         [Required]
-        public int userId { get; set; }
+        public int UserId { get; set; }
 
         /// <summary>
         /// قیمت کل محصولات
         /// </summary>
         [Required]
-        public int FactorSum { get; set; }
+        public decimal FactorSum { get; set; }
         /// <summary>
         /// فاکتور پرداخت کرده و فاکتور نهایی شده
         /// </summary>
@@ -39,12 +39,14 @@ namespace Shop2City.DataLayer.Entities.Orders
         /// <summary>
         /// مشخص شود که نوع پستی انتخاب کرده
         /// </summary>
-        public int typePostId { get; set; }
+        public int TypePostId { get; set; }
 
         /// <summary>
         /// قیمت کل + قیمت پست
         /// </summary>
-        public int totalPrice { get; set; }
+        public decimal TotalPrice { get; set; }
+
+        public decimal DisCountCost { get; set; }
 
         #endregion
         #region Relationship

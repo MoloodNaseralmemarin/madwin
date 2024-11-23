@@ -6,7 +6,7 @@ namespace Shop2City.Core.Services.AdminPanel
     {
         UserForAdminViewModel GetAllUsers(int pageId = 1, string filterFirstName = "", string filterLastName = "");
         UserForAdminViewModel GetDeleteUsers(int pageId = 1, string filterFirstName = "", string filterLastName = "");
-        int AddUserFromAdmin(CreateUserViewModel createUser);
+        Task<int> AddUserFromAdmin(CreateUserViewModel createUser);
         EditUserViewModel GetUserForShowEditMode(int userId);
         void EditUserFromAdmin(EditUserViewModel editUser);
         void DeleteUserFromAdmin(int userId);

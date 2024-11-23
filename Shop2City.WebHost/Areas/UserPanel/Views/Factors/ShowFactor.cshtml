@@ -2,35 +2,25 @@
 @{
     ViewData["Title"] = "سبد خرید";
     var typePosts = ViewData["TypePost"] as List<TypePost>;
-    var sumOrder = Model.FactorSum;
+    var sumOrder = Model.TotalPrice;
     int num = 1;
+    string discountType = ViewBag.typeDiscount.ToString();
+    int factorId = Model.Id;
 }
 <div class="container">
-    <!-- Breadcrumb Start-->
     <ul class="breadcrumb">
         <li><a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i></a></li>
         <li><a href="#" title="سبد خرید">سبد خرید</a></li>
     </ul>
-    <!-- Breadcrumb End-->
     <div class="row">
-        <!--Right Part Start -->
         <partial name="_SideBar" />
-        <!--Right Part End -->
-        <!--Middle Part Start-->
         <div class="col-sm-9" id="content">
             <h1 class="title">سبد خرید</h1>
-            <div class="alert alert-warning">
-                شما از قبل فاکتور پرداخت نشده دارید، در صورت تمایل نداشتن به پرداخت ، آن محصول را حذف کنید.
-            </div>
-            <div class="alert alert-danger text-center mb-5">
-                <b> تذکر : </b><span> برای ثبت و تایید نهایی فاکتور، دکمه تایید فاکتور را کلیک کنید.</span>
-            </div>
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>وضعیت</th>
                             <th>نام محصول</th>
                             <th>تعداد</th>
                             <th>قیمت</th>
@@ -43,19 +33,12 @@
                             <tr>
                                 <td>@num</td>
                                 <td>
-                                    @if (!Model.IsFinaly)
-                                    {
-                                        <span class="text-danger">تایید نشده</span>
-                                    }
-
-                                </td>
-                                <td>
                                     @item.Product.Title
                                 </td>
                                 <td>
                                     @item.Quantity
                                 </td>
-                                <td>@item.Price.ToString("#,0 ریال")</td>
+                                <td>@item.Product.Price.ToString("#,0 ریال")</td>
                                 <td>
                                     @((item.Quantity * item.Price).ToString("#,0 ریال"))
                                 </td>
@@ -66,20 +49,71 @@
                             <td colspan="1" class="text-left">
                                 نحوه ارسال :
                             </td>
-                            <td colspan="5">
+                            <td colspan="4">
                                 <div class="radio-groups">
                                     @foreach (var typePost in typePosts)
-                                    { 
+                                    {
                                         <input class="form-check-input" style="margin-right:25px" type="radio" name="selection" value="@typePost.TypePostId">
                                         <label class="form-check-label">@typePost.TypePostTitle</label>
                                     }
                                 </div>
                             </td>
                         </tr>
+                        @if (!Model.IsFinaly)
+                        {
+                            <tr>
+                                <td colspan="1" class="text-left">
+                                    کد تخفیف :
+                                </td>
+                                <td colspan="4">
+                                    <form action="/UserPanel/Factors/UseDiscount" method="post">
+                                        <input type="hidden" name="factorId" value="@Model.Id" />
+                                        <input type="text" name="code" class="form-control" pattern="[0-9]*" inputmode="numeric" autocomplete="off" />
+                                        <input type="submit" class="btn btn-primary btn-block" style="margin-top: 5px" value="اعمال" />
+                                    </form>
+                                    @if (discountType != "")
+                                    {
+                                        switch (discountType)
+                                        {
+                                            case "Success":
+                                                {
+                                                    <div class="alert alert-success">
+                                                        <p class="text-muted">کد با موفقیت اعمال شد</p>
+                                                    </div>
+                                                    break;
+                                                }
+
+                                            case "NotFound":
+                                                {
+                                                    <div class="alert alert-warning">
+                                                        <p class="text-muted">کد معتبر نیست</p>
+                                                    </div>
+                                                    break;
+                                                }
+                                            case "Finished":
+                                                {
+                                                    <div class="alert alert-danger">
+                                                        <p class="text-muted">کد به اتمام رسیده است</p>
+                                                    </div>
+                                                    break;
+                                                }
+                                            case "UserUsed":
+                                                {
+                                                    <div class="alert alert-info">
+                                                        <p class="text-muted">این کد قبلا توسط شما استفاده شده است</p>
+                                                    </div>
+                                                    break;
+                                                }
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
                         <tr>
-                            <td colspan="3" class="text-left">جمع کل : </td>
-                            <td colspan="3" class="bg bg-success text-center">
-                                @sumOrder.ToString("#,0 ریال")
+                        <tr>
+                            <td colspan="1" class="text-left">جمع کل : </td>
+                            <td colspan="4" class="bg bg-success text-center">
+                                    @sumOrder.ToString("#,0 ریال")
                             </td>
                         </tr>
                     </tbody>
@@ -91,7 +125,7 @@
                     <table class="table table-bordered">
                         <tr>
                             <td class="text-right"><strong>جمع:</strong></td>
-                            <td class="text-right"> @sumOrder.ToString("#,0 ریال")</td>
+                            <td class="text-right"> @Model.TotalPrice.ToString("#,0 ریال")</td>
                         </tr>
                         <tr>
                             <td class="text-right"><strong>هزینه بسته بندی و ارسال:</strong></td>
@@ -101,11 +135,11 @@
                         </tr>
                         <tr>
                             <td class="text-right"><strong>قابل پرداخت :</strong></td>
-                            <td class="text-right" id="totalPrice"></td>
+                            <td class="text-right" id="TotalPrice"></td>
                         </tr>
                         <tr>
                             <td colspan="3">
-                                <a class="btn btn-success btn-block" asp-area="UserPanel" asp-controller="Factors" asp-action="Index" asp-route-id="typePostId">تایید نهایی سفارش</a>
+                                <button class="btn btn-success btn-block" id="postButton">پرداخت آنلاین</button>
                             </td>
                         </tr>
                     </table>
@@ -116,17 +150,25 @@
 </div>
 
 
-    @section Scripts
+
+@section Scripts
 {
 
     <script>
-        var number = @sumOrder;
-        $(document).ready(function () {
-            $(".radio-groups").each(function () {
-                $(this).find("input[type='radio']").first().prop('checked', true);
+
+        var number = @sumOrder
+            $(document).ready(function () {
+                $(".radio-groups").each(function () {
+                    $(this).find("input[type='radio']").first().prop('checked', true);
+                });
+                $("#TotalPrice").html(number.toLocaleString() + "ریال");
+
+
+                           $("#code").on("input", function() {
+                var self = $(this);
+                self.val(self.val().replace(/\D/g, ""));
             });
-            $("#totalPrice").html(number.toLocaleString() + "ریال");
-        });
+            });
         $("input:radio[name=selection]").click(function () {
 
             var value = $(this).val();
@@ -135,10 +177,41 @@
                 url: "/Home/GetPricePostByFactor?typePostId=" + value
 
             }).done(function (result) {
-                var number = result + @sumOrder;
-                $("#PricePost").html(result.toLocaleString() + "ریال");
-                $("#totalPrice").html(number.toLocaleString() + "ریال");
+                var number = result + @sumOrder
+                    $("#PricePost").html(result.toLocaleString() + "ریال");
+                $("#TotalPrice").html(number.toLocaleString() + "ریال");
             });
         });
+
+        var Id = @factorId
+            $('#postButton').click(function () {
+
+                debugger
+                const dataToSend = {
+                    sumOrder: number, // مقدار مورد نظر برای سفارش
+                    invoiceId: Id, // ID فاکتور
+                    source: "factor" // مشخص کردن منبع
+                };
+
+                $.ajax({
+                    url: '/Payment/ProcessPayment',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(dataToSend),
+                    success: function (response) {
+                        if (response.success) {
+                            // انتقال به صفحه پرداخت
+                            window.location.href = response.redirectUrl;
+                        } else {
+                            alert(response.message); // نمایش پیام خطا در صورت عدم موفقیت
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        alert("خطایی در ارسال درخواست رخ داد.");
+                    }
+                });
+
+            });
     </script>
 }

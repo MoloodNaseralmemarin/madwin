@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "bootstrap-icons": "^1.10.4"
+    "bootstrap-datepicker": "^1.10.0",
+    "bootstrap-icons": "^1.10.4",
+    "persian-datepicker": "^1.2.0"
   }
 }

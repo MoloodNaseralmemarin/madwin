@@ -4,7 +4,7 @@ using Shop2City.DataLayer.Entities.Products;
 
 namespace Shop2City.DataLayer.Entities.Orders
 {
-    [Table("FactorDetails", Schema = "Orders")]
+    [Table("FactorDetails", Schema = "Factors")]
     public class FactorDetail
     {
         public FactorDetail()
@@ -13,7 +13,7 @@ namespace Shop2City.DataLayer.Entities.Orders
 
         [Key]
         [Display(Name = "شناسه")]
-        public int FactorDetailId { get; set; }
+        public int Id { get; set; }
 
         [Required]
         public int FactorId { get; set; }

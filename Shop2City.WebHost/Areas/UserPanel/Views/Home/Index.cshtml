@@ -109,4 +109,38 @@
             });
         });
     </script>
+
+@* 
+    <script>
+        $(document).ready(function () {
+            // پیام و نوع پیام را از TempData دریافت کنید
+            var message = '@TempData["ToastrMessage"]';
+            var messageType = '@TempData["ToastrType"]';
+
+            // اگر پیام وجود داشت، نمایش دهید
+            if (message) {
+                toastr.options = {
+                    "closeButton": true,
+                    "progressBar": true,
+                    "positionClass": "toast-fullscreen", // موقعیت نمایش
+                    "timeOut": "5000",
+                    "extendedTimeOut": "2000"
+                };
+
+                // نمایش پیام با توجه به نوع
+                if (messageType === 'success') {
+                    toastr.success(message);
+                } else if (messageType === 'info') {
+                    toastr.info(message);
+                } else if (messageType === 'warning') {
+                    toastr.warning(message);
+                } else if (messageType === 'error') {
+                    toastr.error(message);
+                }
+            }
+        });
+    </script> *@
 }
+
+
+

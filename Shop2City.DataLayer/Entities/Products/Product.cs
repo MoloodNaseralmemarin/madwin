@@ -56,6 +56,7 @@ namespace Shop2City.DataLayer.Entities.Products
         [Display(Name = "کلمه کلیدی")]
         public string? Tags { get; set; }
 
+        [Display(Name = "موجود / ناموجود")]
         public bool IsStatus { get; set; }
 
         #endregion

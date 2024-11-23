@@ -57,11 +57,11 @@ namespace Shop2City.DataLayer.Migrations
 
             modelBuilder.Entity("Shop2City.DataLayer.Entities.DisCounts.DisCount", b =>
                 {
-                    b.Property<int>("disCountId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("disCountId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
@@ -72,8 +72,9 @@ namespace Shop2City.DataLayer.Migrations
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
 
-                    b.Property<int>("ItemId")
-                        .HasColumnType("int");
+                    b.Property<string>("Item")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -92,10 +93,10 @@ namespace Shop2City.DataLayer.Migrations
                     b.Property<DateTime>("startDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("useableCount")
+                    b.Property<int>("useableCount")
                         .HasColumnType("int");
 
-                    b.HasKey("disCountId");
+                    b.HasKey("Id");
 
                     b.ToTable("DisCounts");
                 });
@@ -179,8 +180,11 @@ namespace Shop2City.DataLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FactorId"));
 
-                    b.Property<int>("FactorSum")
-                        .HasColumnType("int");
+                    b.Property<decimal>("DisCountCost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("FactorSum")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsFinaly")
                         .HasColumnType("bit");
@@ -188,8 +192,8 @@ namespace Shop2City.DataLayer.Migrations
                     b.Property<DateTime>("createdDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("totalPrice")
-                        .HasColumnType("int");
+                    b.Property<decimal>("totalPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("typePostId")
                         .HasColumnType("int");
@@ -208,11 +212,11 @@ namespace Shop2City.DataLayer.Migrations
 
             modelBuilder.Entity("Shop2City.DataLayer.Entities.Orders.FactorDetail", b =>
                 {
-                    b.Property<int>("FactorDetailId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FactorDetailId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("FactorId")
                         .HasColumnType("int");
@@ -226,7 +230,7 @@ namespace Shop2City.DataLayer.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.HasKey("FactorDetailId");
+                    b.HasKey("Id");
 
                     b.HasIndex("FactorId");
 
@@ -295,6 +299,9 @@ namespace Shop2City.DataLayer.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("DisCountCost")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Height")
                         .HasColumnType("int");
@@ -1106,11 +1113,11 @@ namespace Shop2City.DataLayer.Migrations
 
             modelBuilder.Entity("Shop2City.DataLayer.Entities.Users.UserDiscountCode", b =>
                 {
-                    b.Property<int>("userDiscountCodeId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("userDiscountCodeId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("disCountId")
                         .HasColumnType("int");
@@ -1118,7 +1125,7 @@ namespace Shop2City.DataLayer.Migrations
                     b.Property<int>("userId")
                         .HasColumnType("int");
 
-                    b.HasKey("userDiscountCodeId");
+                    b.HasKey("Id");
 
                     b.HasIndex("disCountId");
 

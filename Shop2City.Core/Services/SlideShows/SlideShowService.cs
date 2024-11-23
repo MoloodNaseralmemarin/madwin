@@ -66,8 +66,8 @@ namespace Shop2City.Core.Services.SlideShows
                 {
                     Alt = s.Alt,
                     Id = s.Id,
-                    FileName = s.FileName,
-                    Link =s.Link+s.Path+s.FileName,
+                    FileName = s.Path + s.FileName,
+                    Link =s.Link,
                     Sort = s.Sort,
                     Title = s.Title,
                     endShowDateTime=s.EndShowDateTime,

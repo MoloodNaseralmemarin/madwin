@@ -1,0 +1,109 @@
+﻿@page "{id}"
+@model Shop2City.WebHost.Pages.Admin.DisCounts.EditModel
+@{
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-box">
+            <h4 class="m-t-0 m-b-30 header-title">ثبت کد تخفیف جدید</h4>
+
+            <form method="post">
+                <input type="hidden" class="form-control" asp-for="editDisCount.Id">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label asp-for="editDisCount.Item"></label>
+                            <select asp-for="editDisCount.Item" class="form-control">
+                                <option value="O">سفارش با انداره دلخواه</option>
+                                <option value="D">سفارش آماده</option>
+                            </select>
+                            <span class="text-danger" asp-validation-for="editDisCount.disCountCode"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label asp-for="editDisCount.disCountCode"></label>
+                            <input type="text" class="form-control" asp-for="editDisCount.disCountCode">
+                            <span class="text-danger" asp-validation-for="editDisCount.disCountCode"></span>
+                            <div id="alertCode" class="alert alert-danger" style="display:none">
+                                <p class="text-muted text-center">کد وارد شده تکراری می باشد</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="editDisCount.disCountPercent"></label>
+                            <input type="text" class="form-control" asp-for="editDisCount.disCountPercent">
+                            <span class="text-danger" asp-validation-for="editDisCount.disCountPercent"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="editDisCount.useableCount"></label>
+                            <input type="text" class="form-control" asp-for="editDisCount.useableCount">
+                            <span class="text-danger" asp-validation-for="editDisCount.useableCount"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label asp-for="editDisCount.startDate"></label>
+                            <input id="startDate" class="form-control" name="startDate"/>
+                            <span class="text-danger" asp-validation-for="editDisCount.startDate"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="editDisCount.endDate"></label>
+                            <input id="endDate" class="form-control" name="endDate" />
+                            <span class="text-danger" asp-validation-for="editDisCount.endDate"></span>
+                        </div>
+                    </div>
+                </div>
+                <input type="submit" class="btn btn-success" value="ذخیره اطلاعات" />
+                <a asp-page="Create" class="btn btn-info">پاک کردن</a>
+                <a asp-page="Index" class="btn btn-primary" data-toggle="tooltip" title="مشاهده لیست محصولات درج شده">بازگشت به فهرست</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+                            {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#startDate').persianDatepicker(
+            {
+
+                    observer: true,
+                    minDate: new persianDate().unix(),
+                    format: 'YYYY/MM/DD',
+                    Datepicker: '#startDate',
+                    autoClose: true
+            });
+            $('#endDate').persianDatepicker(
+                {
+                    observer: true,
+                    format: 'YYYY/MM/DD',
+                    Datepicker: '#endDate',
+                    autoClose: true
+                });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#disCount_disCountCode').blur(function () {
+                var code = $('#disCount_disCountCode').val();
+                debugger
+                $.ajax({
+                    url: '/home/CheckNumber?code=' + code,
+                    type: 'get',
+                    contentType: 'application/json',
+                    data: JSON.stringify(parseInt(code)),
+                    success: function (response) {
+                        if (response.isDuplicate) {
+                            $('#alertCode').show();
+                        } else {
+                            $('#alertCode').hide();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

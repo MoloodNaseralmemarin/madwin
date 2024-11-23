@@ -1,4 +1,5 @@
-﻿using Shop2City.Core.DTOs.Orders;
+﻿using Microsoft.EntityFrameworkCore;
+using Shop2City.Core.DTOs.Orders;
 using Shop2City.DataLayer.Entities.DisCounts;
 using Shop2City.DataLayer.Entities.Orders;
 
@@ -8,20 +9,20 @@ namespace Shop2City.Core.Services.Orders
     {
         //used
         List<OrderModel> GetAllOrder();
-        List<OrderModel> GetUserOrdersByUserName(string userName);
 
+        Task<List<OrderModel>> GetUserOrdersByUserId(int userId);
         //useed
         List<OrderDetailModel> GetAllOrderDetailByOrderId();
 
 
-        OrderModel GetOrderForUserPanel(string userName, int orderId);
+        Task<OrderModel> GetOrderForUserPanel(int userId, int orderId);
 
         int AddOrder(string userName, int productId);
 
         void UpdatePriceOrder(int orderId);
         OrderModel GetOrderForUserPanel(string userName);
 
-        bool FinallyOrder(string userName,int orderId);
+        bool FinallyOrder(string userName, int orderId);
 
 
         List<TypePost> TypePosts();
@@ -44,7 +45,7 @@ namespace Shop2City.Core.Services.Orders
 
         OrderModel GetUserOrders(string userName, bool isfinaly);
 
-  
+
 
 
 
@@ -56,11 +57,11 @@ namespace Shop2City.Core.Services.Orders
 
         int GetPricePostByTypePostId(int typePostId);
 
-        int GetCountOrderIsFinaly(string userName);
+        Task<int> GetCountOrderIsFinaly(int userId);
 
         #region DisCount
 
-        DiscountUseType UseDiscount(int orderId, string code);
+        Task<DiscountUseType> UseDiscount(int orderId, string code);
 
         #endregion
 
@@ -68,4 +69,4 @@ namespace Shop2City.Core.Services.Orders
     }
 }
 
-       
+

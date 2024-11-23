@@ -28,7 +28,7 @@ namespace Shop2City.WebHost.Pages.Admin.Users
             ViewData["Roles"] = _permissionService.GetRoles();
         }
 
-        public IActionResult OnPost(List<int> SelectedRoles)
+        public async Task<IActionResult> OnPost(List<int> SelectedRoles)
         {
             if (!ModelState.IsValid)
                 return Page();
@@ -47,7 +47,7 @@ namespace Shop2City.WebHost.Pages.Admin.Users
                 ViewData["Roles"] = _permissionService.GetRoles();
                 return Page();
             }
-            int userId = _userService.AddUserFromAdmin(createUser);
+            int userId=await _userService.AddUserFromAdmin(createUser);
             //TODO: Add Roles
             #region Add Roles
             _permissionService.AddRolesToUser(SelectedRoles, userId);

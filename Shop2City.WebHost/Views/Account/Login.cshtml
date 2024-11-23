@@ -18,19 +18,6 @@
         <!--Middle Part Start-->
         <div class="col-sm-9">
             <div class="row" id="content">
-                @if (ViewBag.IsSuccess != null)
-                {
-                    <div class="alert alert-success text-center ">
-                        <p class="help-block">ورود با موفقیت انجام شد</p>
-                        <img src="~/images/progress.gif" />
-                    </div>
-
-                    <script>
-                        // Your delay in milliseconds
-                        var delay = 3000;
-                        setTimeout(function () { window.location = "/UserPanel"; }, delay);
-                    </script>
-                }
                 <div class="col-sm-6">
                 </div>
                 <form asp-action="Login" asp-route-returnurl="@returnUrl" method="post">
@@ -38,14 +25,14 @@
                     <div class="col-sm-6">
                         <div class="form-group">
                             <i class="glyphicon glyphicon-user"></i>
-                            <label asp-for="userName" class="control-label"></label>
-                            <input type="text" asp-for="userName" class="form-control" id="cellPhone" pattern="[0-9]*" inputmode="numeric" />
+                            <label class="control-label">نام کاربری</label>
+                            <input type="text" asp-for="userName" class="form-control" id="userName" pattern="[0-9]*" inputmode="numeric" />
                             
                             <div asp-validation-summary="All" class="text-danger"></div>
                         </div>
                         <div class="form-group">
                             <i class="glyphicon glyphicon-lock"></i>
-                            <label asp-for="password" class="control-label"></label>
+                            <label class="control-label">کلمه عبور</label>
                             <input type="password" asp-for="password" class="form-control" id="password"/>
                         </div>
                         <div class="form-group">
@@ -66,7 +53,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
 
-            $("#cellPhone").on("input", function() {
+            $("#userName").on("input", function() {
                 var self = $(this);
                 self.val(self.val().replace(/\D/g, ""));
             });

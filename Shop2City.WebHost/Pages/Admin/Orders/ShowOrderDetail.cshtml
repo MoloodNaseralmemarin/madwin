@@ -1,16 +1,12 @@
 ﻿@page "{id}"
 @model Shop2City.Web.Pages.Admin.Orders.ShowOrderDetailModel
-@{
-    int i = 1;
-}
-
-
-
 <div class="row">
     <div class="col-lg-12">
         <div class="card-box">
 
-            <table class="table table-striped" id="review">
+
+
+            <table class="responsive-table table-striped">
                 <thead>
                     <tr>
                         <th>نام محصول</th>
@@ -21,15 +17,11 @@
                     @foreach (var item in Model.GetAllOrderDetails)
                     {
                         <tr>
-                            
-                            <td>@i</td>
                             <td>@item.ProductSelectedCalculation.Calculation.Name</td>
                             <td>@item.Cost.ToString("#,0 ریال")</td>
                         </tr>
-                        i++;
                     }
                 </tbody>
-
             </table>
         </div>
     </div>

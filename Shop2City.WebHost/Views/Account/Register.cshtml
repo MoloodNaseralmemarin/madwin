@@ -2,9 +2,7 @@
 @{
     ViewData["Title"] = "ثبت نام";
 }
-
 <div class="container">
-    <!-- Breadcrumb Start-->
     <ul class="breadcrumb">
         <li><a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i></a></li>
         <li aria-current="page">حساب کاربری</li>
@@ -19,7 +17,7 @@
         @if (ViewBag.IsSuccess != null)
         {
             <div class="alert alert-success text-center ">
-                <p class="help-block">با تشکر از ثبت نام شما در فروشگاه پناه پلاست</p>
+                <p class="help-block">با تشکر از ثبت نام شما در فروشگاه ماد وین</p>
                 <img src="~/images/progress.gif" />
             </div>
 
@@ -61,7 +59,7 @@
                         <span asp-validation-for="cellPhone"></span>
                         <label asp-for="address" class="col-sm-2 control-label"></label>
                         <div class="col-sm-10">
-                            <i class="glyphicon glyphicon-phone"></i>
+                            <i class="glyphicon glyphicon-home"></i>
                             <input type="text" asp-for="address" class="form-control" id="address">
                             <span asp-validation-for="address"></span>
 
@@ -71,7 +69,6 @@
                 <fieldset>
                     <legend>رمز عبور شما</legend>
                     <div class="form-group required">
-                        <span asp-validation-for="address"></span>
                         <label asp-for="password" class="col-sm-2 control-label"></label>
                         <div class="col-sm-10">
                             <i class="glyphicon glyphicon-lock"></i>

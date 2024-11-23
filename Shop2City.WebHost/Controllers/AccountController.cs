@@ -8,15 +8,21 @@ using Shop2City.Core.Security;
 using Shop2City.Core.Services.Users;
 using Shop2City.DataLayer.Entities;
 using Shop2City.DataLayer.Entities.Users;
-using Shop2City.Core.DTOs.ShoppingCart;
-using Shop2City.Core.Helpers;
+using System.Resources;
 
 namespace Shop2City.WebHost.Controllers
 {
-    public class AccountController(IUserService userService) : Controller
+    public class AccountController : Controller
     {
+        private readonly IUserService _userService;
+        private readonly ILogger<AccountController> _logger;
 
-
+        public AccountController(IUserService userService, ILogger<AccountController> logger)
+        {
+            _userService = userService;
+            _logger = logger;
+            
+        }
         #region Register
 
         [Route("Register")]
@@ -24,25 +30,19 @@ namespace Shop2City.WebHost.Controllers
         {
             return View();
         }
-           
-
         [HttpPost]
         [Route("Register")]
-        public IActionResult Register(RegisterViewModel registerViewModel)
-        { 
+        public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
+        {
             if (!ModelState.IsValid)
                 return View(registerViewModel);
-
-            #region IsExist...
-            if (userService.IsExistCellPhone(registerViewModel.cellPhone))
+            if (_userService.IsExistCellPhone(registerViewModel.cellPhone))
             {
                 ModelState.AddModelError("cellPhone", ErrorMessage.InvalidCellPhone);
-                //TempData["Message"] = " شما قبلاً با " + registerViewModel.cellPhone + "ثبت نام کرده اید. ";
                 return View(registerViewModel);
             }
-            #endregion
 
-            #region Register User
+            #region Add User
             var user = new User
             {
                 CellPhone = registerViewModel.cellPhone,
@@ -52,43 +52,81 @@ namespace Shop2City.WebHost.Controllers
                 Password = PasswordHelper.EncodePasswordMd5(registerViewModel.password),
                 CreateDate = DateTime.Now,
                 UserName = registerViewModel.cellPhone,
-                Address =registerViewModel.address,
+                Address = registerViewModel.address,
             };
+
+            // Register user information
+            await _userService.AddUserAsync(user);
+
+            // Send a welcome SMS
+            var isSmsSent = await SendWelcomeSmsAsync(registerViewModel);
+
+            // اگر ارسال پیامک ناموفق بود، خطا به کاربر نمایش داده می‌شود
+            if (!isSmsSent)
+            {
+                ModelState.AddModelError(string.Empty, "خطا در ارسال پیامک خوشامدگویی.");
+                return View(registerViewModel);
+            }
+
+            // ذخیره اطلاعات SMS در پایگاه داده
+            await SaveSmsAsync(registerViewModel);
             #endregion
 
-            userService.AddUser(user);
-            #region Send Welcome SMS
+
+            return RedirectToAction("Login");
+        }
+
+        // متد برای ارسال پیامک خوشامدگویی
+        private async Task<bool> SendWelcomeSmsAsync(RegisterViewModel registerViewModel)
+        {
             try
             {
                 var otpsms = new Ghasedak.Core.Api("ce805d8405091990a26d5964e2e393667da9422ec5a472edfed717fa3b0aecfa");
-                var res = otpsms.VerifyAsync(1, "PanahPlast",
-                    [registerViewModel.cellPhone],
-                registerViewModel.firstName+ " "+registerViewModel.lastName,"پناه پلاست");
+                var result = await otpsms.VerifyAsync(1, "PanahPlast", new[] { registerViewModel.cellPhone }, $"{registerViewModel.firstName} {registerViewModel.lastName}", "ماد وین");
 
+                // بررسی نتیجه ارسال پیامک
+                if (result != null)  // جایگزین کردن با کد یا ویژگی درست
+                {
+                    return true;
+                }
+                else
+                {
+                    _logger.LogWarning("Error in sending SMS.");
+                    return false;
+                }
             }
             catch (Ghasedak.Core.Exceptions.ApiException ex)
             {
-                Console.WriteLine(ex.Message);
+                // لاگ کردن خطاهای مربوط به API
+                _logger.LogError(ex, "API error during sending SMS.");
+                return false;
             }
             catch (Ghasedak.Core.Exceptions.ConnectionException ex)
             {
-                Console.WriteLine(ex.Message);
+                // لاگ کردن خطاهای مربوط به اتصال
+                _logger.LogError(ex, "Connection error during sending SMS.");
+                return false;
             }
+            catch (Exception ex)
+            {
+                // لاگ کردن سایر خطاها
+                _logger.LogError(ex, "Unexpected error during sending SMS.");
+                return false;
+            }
+        }
 
-            #region AddSMs
+        // متد برای ذخیره اطلاعات SMS
+        private async Task SaveSmsAsync(RegisterViewModel registerViewModel)
+        {
             var sms = new Sms
             {
                 CellPhone = registerViewModel.cellPhone,
-                Message = registerViewModel.firstName + " " + registerViewModel.lastName + "گرامی به فروشگاه آنلاین پلاست خوش آمدید.\r\nفروشگاه آنلاین پناه پلاست \r\nلغو "
-
+                Message = $"{registerViewModel.firstName} {registerViewModel.lastName} گرامی، به فروشگاه آنلاین پلاست خوش آمدید.\r\nفروشگاه آنلاین پناه پلاست \r\nلغو "
             };
-            userService.AddSMS(sms);
-            #endregion
-            #endregion
-            //ViewBag.IsSuccess
-            ViewBag.IsSuccess = "" + registerViewModel.firstName+ " " +registerViewModel.lastName +" "+ "عزیز! با تشکر عضویت شما با موفقیت انجام شد.جهت ادامه خرید خود با نام کاربری و کلمه عبور خود وارد شوید.";
-            return View();
+
+            await _userService.AddSMSAsync(sms);
         }
+
         #endregion
 
         #region Login
@@ -102,22 +140,25 @@ namespace Shop2City.WebHost.Controllers
         [HttpPost]
         [Route("Login")]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(LoginViewModel login, string returnUrl)
+        public async Task<IActionResult> Login(LoginViewModel login, string returnUrl)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
+                _logger.LogWarning("ModelState is invalid during login attempt for Email: {Email}", login.userName);
                 return View(login);
             }
 
-            
-            var user = userService.LoginUser(login);
-            if (user != null)
+            try
             {
-                    var claims = new List<Claim>()
-                    {
-                        new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
-                        new Claim(ClaimTypes.Name,user.UserName)
-                    };
+                var user = _userService.LoginUser(login);
+                if (user != null)
+                {
+                    var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
+            };
+
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var principal = new ClaimsPrincipal(identity);
 
@@ -125,22 +166,35 @@ namespace Shop2City.WebHost.Controllers
                     {
                         IsPersistent = login.rememberMe
                     };
-                    HttpContext.SignInAsync(principal, properties);
 
-                    ViewBag.IsSuccess = true;
-                    if (!String.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, properties);
+
+                    _logger.LogInformation("User {UserId} logged in successfully.", user.Id);
+                    TempData["LoginSuccessMessage"] = "ورود شما با موفقیت انجام شد.";
+
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    {
+                        _logger.LogInformation("Redirecting user {UserId} to returnUrl: {ReturnUrl}", user.Id, returnUrl);
                         return Redirect(returnUrl);
-                    else
-                        return View();
+                    }
 
+                    return View();
+                }
+
+                _logger.LogWarning("Invalid login attempt for userName: {userName}", login.userName);
+                ModelState.AddModelError("Email", "کاربری با مشخصات وارد شده یافت نشد");
+                return View(login);
             }
-            ModelState.AddModelError("Email", "کاربری با مشخصات وارد شده یافت نشد");
-            return View(login);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred during login attempt for userName: {userName}", login.userName);
+                return View(login);
+            }
         }
 
+
+
         #endregion
-
-
 
         #region Logout
         [Route("Logout")]

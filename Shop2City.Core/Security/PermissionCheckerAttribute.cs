@@ -1,38 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Shop2City.Core.Services.Permissions;
+using System.Security.Claims;
 
 namespace Shop2City.Core.Security
 {
-    public class PermissionCheckerAttribute : AuthorizeAttribute, IAuthorizationFilter
+    public class PermissionCheckerAttribute : AuthorizeAttribute, IAsyncAuthorizationFilter
     {
-        private IPermissionService _permissionService;
-        private int _permissionId = 0;
+        private readonly int _permissionId;
+
         public PermissionCheckerAttribute(int permissionId)
         {
             _permissionId = permissionId;
         }
 
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            _permissionService =(IPermissionService) context.HttpContext.RequestServices.GetService(typeof(IPermissionService));
-            if (context.HttpContext.User.Identity.IsAuthenticated)
+            try
             {
-                string userName = context.HttpContext.User.Identity.Name;
+                var permissionService = context.HttpContext.RequestServices.GetRequiredService<IPermissionService>();
 
-                if (!_permissionService.CheckPermission(_permissionId, userName))
+                if (context.HttpContext.User.Identity?.IsAuthenticated ?? false)
                 {
-                    context.Result = new RedirectResult("/Login?"+context.HttpContext.Request.Path);
+                    var userIdClaim = context.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+                    if (userIdClaim == null)
+                    {
+                        context.Result = new RedirectResult("/Login");
+                        return;
+                    }
+
+                    var userId = int.Parse(userIdClaim.Value);
+
+                    if (!await permissionService.CheckPermissionAsync(_permissionId, userId))
+                    {
+                        context.Result = new RedirectResult($"/Login?{context.HttpContext.Request.Path}");
+                    }
+                }
+                else
+                {
+                    context.Result = new RedirectResult("/Login");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                context.Result = new RedirectResult("/Login");
+                // Logging (می‌توانید به جای استفاده مستقیم از ILogger، از Middleware استفاده کنید)
+                context.Result = new RedirectResult("/Error");
             }
         }
     }
+
 }

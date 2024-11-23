@@ -12,10 +12,10 @@
                 <div class="form-group">
                     <div class="row">
                         <div class="col-md-12">
-                            <label asp-for="disCount.ItemId"></label>
-                            <select asp-for="disCount.ItemId" class="form-control">
-                                <option value="0">سفارش با انداره دلخواه</option>
-                                <option value="1">سفارش آماده</option>
+                            <label asp-for="disCount.Item"></label>
+                            <select asp-for="disCount.Item" class="form-control">
+                                <option value="O">سفارش با انداره دلخواه</option>
+                                <option value="D">سفارش آماده</option>
                             </select>
                             <span class="text-danger" asp-validation-for="disCount.disCountCode"></span>
                         </div>
@@ -30,7 +30,11 @@
                             <label asp-for="disCount.disCountCode"></label>
                             <input type="text" class="form-control" asp-for="disCount.disCountCode">
                             <span class="text-danger" asp-validation-for="disCount.disCountCode"></span>
+                            <div id="alertCode" class="alert alert-danger" style="display:none">
+                                <p class="text-muted text-center">کد وارد شده تکراری می باشد</p>
+                            </div>
                         </div>
+
                         <div class="col-md-4">
                             <label asp-for="disCount.useableCount"></label>
                             <input type="text" class="form-control" asp-for="disCount.useableCount">
@@ -42,18 +46,67 @@
                     <div class="row">
                         <div class="col-md-6">
                             <label asp-for="disCount.startDate"></label>
-                            <input type="text" class="form-control" asp-for="disCount.startDate">
+                            <input id="startDate" class="form-control" name="startDate" />
                             <span class="text-danger" asp-validation-for="disCount.startDate"></span>
                         </div>
                         <div class="col-md-6">
                             <label asp-for="disCount.endDate"></label>
-                            <input type="text" class="form-control" asp-for="disCount.endDate">
+                            <input id="endDate" class="form-control" name="endDate" />
                             <span class="text-danger" asp-validation-for="disCount.endDate"></span>
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">ثبت اطلاعات</button>
+                <input type="submit" class="btn btn-success" value="ذخیره اطلاعات" />
+                <a asp-page="Create" class="btn btn-info">پاک کردن</a>
+                <a asp-page="Index" class="btn btn-primary" data-toggle="tooltip" title="مشاهده لیست محصولات درج شده">بازگشت به فهرست</a>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#startDate').persianDatepicker(
+                {
+                    observer: true,
+                    format: 'YYYY/MM/DD',
+                    Datepicker: '#startDate',
+                    autoClose: true,
+                    minDate: new persianDate().unix()
+
+                });
+            $('#endDate').persianDatepicker(
+                {
+                    observer: true,
+                    format: 'YYYY/MM/DD',
+                    Datepicker: '#endDate',
+                    autoClose: true
+                });
+
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#disCount_disCountCode').blur(function () {
+                var code = parseInt($('#disCount_disCountCode').val());
+                debugger
+                $.ajax({
+                    url: '/home/CheckNumber?code=' + code,
+                    type: 'get',
+                    contentType: 'application/json',
+                    data: JSON.stringify(parseInt(code)),
+                    success: function (response) {
+                        if (response.isDuplicate) {
+                            $('#alertCode').show();
+                        } else {
+                            $('#alertCode').hide();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -26,6 +26,7 @@
                     <tr>
                         <th>تاریخ ثبت محصول</th>
                         <th>نام </th>
+                        <th>وضعیت</th>
                         <th>ثبت تصاویر محصول</th>
                         <th>ثبت ویژگی محصول</th>
                         <th>ویرایش  محصول</th>
@@ -33,7 +34,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                   @foreach (var item in Model.ProductForAdminViewModel.Products)
+                    @foreach (var item in Model.ProductForAdminViewModel.Products)
                     {
                         <tr>
                             <td>
@@ -42,18 +43,27 @@
                             <td>
                                 <a href="/ShowProduct/@item.Id">@item.Title</a>
                             </td> <!--سر فرصت درستش کن-->
+                            @if (item.IsStatus)
+                            {
+                                <td class="badge badge-success">موجود</td>
+                            }
+                            else
+                            {
+                                <td class="badge badge-danger">نا موجود</td>
+                            }
 
                             <td>
                                 <a class="btn btn-outline-success" href="/Admin/ProductImages/Index/@item.Id" title="تصاویر محصول">تصاویر محصول</a>
                             </td>
-                            <td><a class="btn btn-outline-success" href="/Admin/PropertyProducts/Index/@item.Id" title="ویژگی محصول">ویژگی محصول</a>
-                                </td>
+                            <td>
+                                <a class="btn btn-outline-success" href="/Admin/PropertyProducts/Index/@item.Id" title="ویژگی محصول">ویژگی محصول</a>
+                            </td>
                             <td>
                                 <a href="/Admin/Products/Edit/@item.Id" class="btn waves-effect waves-light btn-outline-warning" data-toggle="tooltip" title="ویرایش محصول">
                                     <span class="fa fa-pencil"></span>
                                 </a>
                             </td>
-                           
+
                             <td>
                                 <a href="/Admin/Products/Delete/@item.Id" class="btn waves-effect waves-light btn-outline-danger" data-toggle="tooltip" title="حذف محصول">
                                     <span class="fa fa-trash"></span>

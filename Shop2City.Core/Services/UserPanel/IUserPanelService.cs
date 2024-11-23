@@ -8,9 +8,9 @@ namespace Shop2City.Core.Services.UserPanel
     {
         InformationUserViewModel GetInformationUser(string userName);
 
-        InformationUserViewModel GetInformationUser(int userId);
+        Task<InformationUserViewModel> GetInformationUser(int userId);
 
-        SideBarUserPanelViewModel GetSideBarUserPanelData(string? userName);
+        Task<SideBarUserPanelViewModel> GetSideBarUserPanelDataAsync(int id);
 
         EditProfileViewModel GetDataForEditProfileUser(string userName);
 

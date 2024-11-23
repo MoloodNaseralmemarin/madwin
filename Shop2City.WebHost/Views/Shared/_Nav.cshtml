@@ -18,7 +18,7 @@
                     @if (User.Identity.IsAuthenticated)
                     {
                         <li><a asp-controller="Account" asp-action="Logout"> خروج </a></li>
-                        <li><a href="/UserPanel">@User.Identity.Name خوش آمدید.</a></li>
+                        <li><a href="/UserPanel">@User.Identity.Name&nbsp; خوش آمدید.</a></li>
                     }
                     else
                     {

@@ -1,0 +1,45 @@
+﻿@model OrderModel
+@{
+    ViewData["Title"] = "نمایش سفارش ها";
+}
+
+<link href="~/css/table.css" rel="stylesheet" />
+
+<div class="container">
+    <ul class="breadcrumb">
+        <li><a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i></a></li>
+        <li><a href="#">سبد خرید</a></li>
+    </ul>
+    <div class="row">
+        <partial name="_SideBar" />
+        <div class="col-sm-9" id="content">
+            <h1 class="title">سبد خرید</h1>
+            <div class="table-responsive">
+                <table>
+                    <tr>
+                        <th>تاریخ</th>
+                        <th>شماره فاکتور</th>
+                        <th>عنوان سفارش</th>
+                        <th>ارتفاع-عرض</th>
+                        <th>تعداد</th>
+                        <th>قیمت واحد</th>
+                        <th>دستورات</th>
+                    </tr>
+                    <tr>
+                        <td>@Model.CreateDate.ToShamsi()</td>
+                        <td>@Model.Id</td>
+                        <td>پرده @Model.OrderCategory.Title - @Model.OrderSubCategory.Title</td>
+                        <td>w:@Model.Width h:@Model.Height </td>
+                        <td>@Model.Count</td>
+                        <td>@Math.Floor(Model.Cost).ToString("#,0 ریال")</td>
+                        <td>@Math.Floor(Model.Cost).ToString("#,0 ریال")</td>
+
+                    </tr>
+                </table>
+            </div>
+            <div class="btn pull-left"><a asp-area="UserPanel" asp-controller="Home" asp-action="Index" class="btn btn-default">سفارش جدید</a></div>
+        </div>
+    </div>
+</div>
+
+

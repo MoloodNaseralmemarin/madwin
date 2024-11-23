@@ -2,38 +2,26 @@
     ViewData["Title"] = "تماس با ما";
 }
 <div class="container">
-    <!-- Breadcrumb Start-->
     <ul class="breadcrumb">
         <li><a  asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i></a></li>
         <li><a class="active">تماس با ما</a></li>
     </ul>
-    <!-- Breadcrumb End-->
     <div class="row">
-        <!--Middle Part Start-->
-        @if (ViewBag.IsSuccess != null) // && _PermissionService.CheckPermission(1))
-        {
-            <div class="alert alert-success align-content-lg-center text-center">
-                <p class="help-block">با موفقیت ارسال شد</p>
-            </div>
-        }
     <div id="content" class="col-sm-12">
         <div id="content" class="col-sm-12">
             <h1 class="title">تماس با ما</h1>
             <h3 class="subtitle">محل ما</h3>
             <div class="row">
-                <div class="col-sm-6"><strong>فروشگاه پناه پلاست</strong><br />
+                <div class="col-sm-6"><strong>فروشگاه ماد وین</strong><br />
                     <address>
-                        همدان - میدان امام حسین - <br/>
-                            - ابتدای 24 متری صعنت<br/>
-                        
+                        همدان - میدان امام حسین - ابتدای 24 متری صنعت
                     </address>
                 </div>
                 <div class="col-sm-6"><strong>شماره تلفن</strong><br>
                     09180580270
                 </div>
             </div>
-
         </div>
-       
     </div>
+</div>
 </div>

@@ -13,7 +13,7 @@ namespace Shop2City.Core.Services.Users
         #endregion
 
         #region RegisterUser
-        int AddUser(User user);
+        Task<int> AddUserAsync(User user);
         void UpdateUser(User user);
         void DeleteUser(int userId);
         #endregion
@@ -24,8 +24,17 @@ namespace Shop2City.Core.Services.Users
 
 
         #region GetUserBy...
-        User GetUserByUserId(int userId);
+        Task<User> GetUserByUserId(int userId);
         int GetUserIdByUserName(string userName);
+
+        Task<int> GetUserIdByUserId(int userId);
+
+        Task<int> GetUserIdByFactorId(int factorId);
+
+        Task<int> GetUserIdByOrderId(int orderId);
+
+        Task<string> GetCellPhoneByUserId(int userId);
+
 
         int GetRoleIdByUserId(int userId);
 
@@ -44,9 +53,9 @@ namespace Shop2City.Core.Services.Users
         #region Admin Panel
         UserForAdminViewModel GetAllUsers(int pageId = 1, string filterFirstName = "");
 
-        UserForAdminViewModel GetDeleteUsers(int pageId = 1, string filterEmail = "", string filterUserName = "");
+        Task<UserForAdminViewModel> GetDeleteUsers(int pageId = 1, string filterEmail = "", string filterUserName = "");
 
-        int AddUserFromAdmin(CreateUserViewModel createUser);
+        Task<int> AddUserFromAdmin(CreateUserViewModel createUser);
 
         EditUserViewModel GetUserForShowEditMode(int userId);
 
@@ -56,7 +65,7 @@ namespace Shop2City.Core.Services.Users
         #endregion
 
 
-        void AddSMS(Sms sms);
+        Task AddSMSAsync(Sms sms);
 
         int CountSMSs();
 

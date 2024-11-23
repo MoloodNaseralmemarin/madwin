@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Shop2City.Const;
-using Shop2City.Core.DTOs.Account;
 using Shop2City.Core.DTOs.Orders;
 using Shop2City.Core.Services;
 using Shop2City.Core.Services.Calculations;
@@ -56,7 +52,8 @@ namespace Shop2City.Web.Areas.UserPanel.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(OrderViewModel orderView)
         {
-            int userId = _userService.GetUserIdByUserName(User.Identity.Name);
+            int Id = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+            int userId =await _userService.GetUserIdByUserId(Id);
             decimal resultPrice = 0;
 
             int oldHeight = orderView.Height;

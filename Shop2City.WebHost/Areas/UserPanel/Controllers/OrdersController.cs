@@ -7,8 +7,7 @@ using Shop2City.Core.Services.Products;
 using Shop2City.Core.Services.Users;
 using Shop2City.DataLayer.Context;
 using Shop2City.DataLayer.Entities;
-using Stimulsoft.System.Windows.Forms;
-
+using Shop2City.DataLayer.Entities.Users;
 
 namespace Shop2City.WebHost.Areas.UserPanel.Controllers
 {
@@ -29,32 +28,27 @@ namespace Shop2City.WebHost.Areas.UserPanel.Controllers
             _productService = productService;
         }
 
-            public IActionResult ShowOrder(int id, bool finaly = false, string type = "")
-            {
-            ViewData["TypePost"] = _orderService.TypePosts();
-            var order = _orderService.GetOrderForUserPanel(User.Identity.Name, id);
-
-                if (order == null)
-                {
-                    return NotFound();
-                }
-
-                ViewBag.typeDiscount = type;
-                ViewBag.finaly = finaly;
-                return View(order);
-            }
-       
-        public IActionResult Index()
+        public async Task<IActionResult> ShowOrder(int id, bool finaly = false, string type = "")
         {
-            //وقتی به این مرحله رسیدم اطلاعات توی جدول order ذخیره شده است ولی تکلیف ی سری از فیلدها مشخص نیست
+            int userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+            ViewData["TypePost"] = _orderService.TypePosts();
+            var order = await _orderService.GetOrderForUserPanel(userId, id);
 
-            #region اطلاعات کاربر برای داشتن شماره موبایل برای ارسال پیامک نیاز دازرم
-            var user = _userService.GetUserByUserName(User.Identity.Name);
-            #endregion
-            // در این مرحله نسب به نام کاربری شناسه کاربر بدست می آوریم.
+            if (order == null)
+            {
+                return NotFound();
+            }
 
-            var userId = _userService.GetUserIdByUserName(User.Identity.Name);
-            //اینجا با داشتن شناسه کاربر اطلاعات فاکتور رو به دست میآوریم
+            ViewBag.typeDiscount = type;
+            ViewBag.finaly = finaly;
+            return View(order);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> ShowOrderForUser(int orderId)
+        {
+            int userId = await _userService.GetUserIdByOrderId(orderId);
+            var cellPhone = await _userService.GetCellPhoneByUserId(userId);
             var order = _orderService.GetOrderByUserId(userId);
             //وضعیت پرداخت مشخص میکنم که فاکتور نهایی بشه
             order.IsFinaly = true;
@@ -67,7 +61,7 @@ namespace Shop2City.WebHost.Areas.UserPanel.Controllers
             {
                 var otpsms = new Ghasedak.Core.Api("ce805d8405091990a26d5964e2e393667da9422ec5a472edfed717fa3b0aecfa");
                 var res = otpsms.VerifyAsync(1, "PanahPlastSendOrder",
-                new string[] { user.CellPhone, },
+                new string[] { cellPhone },
                     order.Id.ToString(), "وین ماد");
 
             }
@@ -83,19 +77,19 @@ namespace Shop2City.WebHost.Areas.UserPanel.Controllers
             #region AddSMs User
             var smsorder = new Sms
             {
-                CellPhone = user.CellPhone,
+                CellPhone = cellPhone,
                 Message = "در سامانه ثبت شده است." + order + "سفارش شما با کد پیگیری.\r\nفروشگاه آنلاین وین ماد \r\nلغو "
 
             };
-            _userService.AddSMS(smsorder);
+            await _userService.AddSMSAsync(smsorder);
             #endregion
-           
+
             #region ارسالsms به خانم ...
             try
             {
                 var otpsms = new Ghasedak.Core.Api("ce805d8405091990a26d5964e2e393667da9422ec5a472edfed717fa3b0aecfa");
                 var res = otpsms.VerifyAsync(1, "PanahPlastGetOrder",
-                new string[] {"09182185223" },
+                new string[] { "09182185223" },
                 order.Id.ToString(),
                 order.OrderCategory.Title + "/" + order.OrderSubCategory.Title,
                 order.Height.ToString(),
@@ -118,11 +112,11 @@ namespace Shop2City.WebHost.Areas.UserPanel.Controllers
             #region AddSMs Mrs
             var smsmrsorder = new Sms
             {
-                CellPhone = user.CellPhone,
+                CellPhone = cellPhone,
                 Message = "فاکتور" + order.Id + "نوع" + order.OrderCategory.Title + "/" + order.OrderSubCategory.Title + "ارتفاع" + order.Height + "عرض" + order.Width + "تعداد" + order.Count + "\r\nفروشگاه آنلاین وین ماد \r\nلغو",
 
             };
-            _userService.AddSMS(smsmrsorder);
+            await _userService.AddSMSAsync(smsmrsorder);
             #endregion
             #region ارسال SMS به داداش
             try
@@ -157,31 +151,15 @@ namespace Shop2City.WebHost.Areas.UserPanel.Controllers
                 Message = "فاکتور" + order.Id + "نوع" + order.OrderCategory.Title + "/" + order.OrderSubCategory.Title + "ارتفاع" + order.Height + "عرض" + order.Width + "تعداد" + order.Count + "\r\nفروشگاه آنلاین وین ماد \r\nلغو",
 
             };
-            _userService.AddSMS(sms);
+            await _userService.AddSMSAsync(sms);
             #endregion
             #endregion
             return View(order);
         }
 
-        [Authorize]
-        public IActionResult DeleteOrder(int id)
-        {
-            _orderService.DeleteOrderItem(id);
-            return Redirect(Request.Headers["Referer"].ToString());
-        }
-
-        public IActionResult OrderForUser(bool isfinaly)
-        {
-            ViewData["TypePost"] = _orderService.TypePosts();
-            var showorder = _orderService.GetUserOrders(User.Identity.Name, isfinaly);
-            if (showorder == null)
-                return View();
-            return View(showorder);
-        }
-
         public async Task<IActionResult> UseDiscount(int orderId, string code)
         {
-            var type =_orderService.UseDiscount(orderId, code);
+            var type = await _orderService.UseDiscount(orderId, code);
             return Redirect("/UserPanel/Orders/ShowOrder/" + orderId + "?type=" + type);
         }
     }

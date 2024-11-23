@@ -1,11 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Shop2City.Core.DTOs.DisCounts;
 using Shop2City.DataLayer.Context;
 using Shop2City.DataLayer.Entities.DisCounts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Shop2City.DataLayer.Entities.ShoppingCarts;
+
 
 namespace Shop2City.Core.Services.DisCounts
 {
@@ -24,9 +22,55 @@ namespace Shop2City.Core.Services.DisCounts
             _context.SaveChanges();
         }
 
-        public List<DisCount> GetAllDisCounts()
+        public void DeleteDisCount(int id)
         {
-            return _context.DisCounts.ToList();
+            var item=GetDisCountByDisCountId(id);
+            if (item != null)
+            {
+                item.IsDelete = true;
+                item.UpdateDate = DateTime.UtcNow;
+                UpdateDisCount(item);
+            }
+        }
+
+        public List<DisCountViewModel> GetAllDisCounts()
+        {
+            var currentDate = DateTime.Now.Date; // تاریخ فعلی
+
+            var results = _context.DisCounts
+                .Select(ds => new DisCountViewModel
+                {
+                    id = ds.Id,
+                    item=ds.Item,
+                    createDate =ds.CreateDate,
+                    disCountPercent=ds.disCountPercent,
+                    disCountCode=ds.disCountCode,
+                    useableCount=ds.useableCount,
+                    startDate=ds.startDate,
+                    endDate = ds.endDate,
+                    isInactive = ds.endDate.Date < currentDate ? "غیر فعال شده است" : "فعال"
+                })
+                .ToList();
+
+            return results;
+        }
+
+
+        public DisCount GetDisCountByDisCountId(int disCountId)
+        {
+            return _context.DisCounts.Find(disCountId);
+        }
+
+        public bool IsExistDisCountCode(string discountcode)
+        {
+            return _context.DisCounts
+             .Any(dc => dc.disCountCode == discountcode);
+        }
+
+        public void UpdateDisCount(DisCount discount)
+        {
+            _context.Update(discount);
+            _context.SaveChanges();
         }
     }
 }

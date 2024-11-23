@@ -20,9 +20,9 @@ namespace Shop2City.Web.Pages.Admin.Users
 
         public UserForAdminViewModel userForAdmin { get; set; }
 
-        public void OnGet(int pageId = 1, string filterUserName = "", string filterEmail = "")
+        public async void OnGet(int pageId = 1, string filterUserName = "", string filterEmail = "")
         {
-            userForAdmin = _userService.GetDeleteUsers(pageId,filterEmail,filterUserName);
+            userForAdmin =await _userService.GetDeleteUsers(pageId,filterEmail,filterUserName);
         }
 
     }

@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Shop2City.Core.DTOs.Users;
+using Shop2City.Core.DTOs.DisCounts;
 using Shop2City.Core.Services.DisCounts;
 using Shop2City.DataLayer.Entities.DisCounts;
 
@@ -14,10 +14,35 @@ namespace Shop2City.WebHost.Pages.Admin.DisCounts
             _disCountService = disCountService;
         }
 
-        public List<DisCount> disCount { get; set; }
+        public List<DisCountViewModel> disCount { get; set; }
+
+
         public void OnGet()
         {
+
             disCount = _disCountService.GetAllDisCounts();
         }
+
+        public IActionResult OnPost(int itemId)
+        {
+            if (_disCountService == null)
+            {
+                return NotFound();
+            }
+            var discount =  _disCountService.GetDisCountByDisCountId(itemId);
+            if (discount == null)
+            {
+                return NotFound();
+            }
+            if (_disCountService == null)
+            {
+
+                return Page();
+            }
+            _disCountService.DeleteDisCount(itemId);
+            TempData["AlertSuccess"] = "مورد با موفقیت حذف شد.";
+            return RedirectToPage(nameof(Index), new { deletedItemId = itemId });
+        }
+
     }
 }

@@ -29,17 +29,30 @@ namespace Shop2City.Core.Services.UserPanel
             return informationUser;
         }
 
-        public SideBarUserPanelViewModel GetSideBarUserPanelData(string? userName)
+        public async Task<SideBarUserPanelViewModel> GetSideBarUserPanelDataAsync(int id)
         {
-            return _context.Users
-                .Where(u => u.UserName == userName)
+            var user = await _context.Users
+                .Where(u => u.Id == id)
                 .Select(u => new SideBarUserPanelViewModel
                 {
-                    fullName = u.FirstName + " " + u.LastName,
+                    fullName = $"{u.FirstName} {u.LastName}",
                     registerDate = u.CreateDate
+                })
+                .SingleOrDefaultAsync();
 
-                }).Single();
+            if (user == null)
+            {
+                // مدیریت در صورت عدم وجود کاربر
+                return new SideBarUserPanelViewModel
+                {
+                    fullName = "کاربر یافت نشد",
+                    registerDate = DateTime.MinValue
+                };
+            }
+
+            return user;
         }
+
 
         public void EditProfile(string userName, EditProfileViewModel editProfile)
         {
@@ -100,9 +113,9 @@ namespace Shop2City.Core.Services.UserPanel
                 .Any(u => u.UserName == userName && u.Password == hashOldPassword);
         }
 
-        public InformationUserViewModel GetInformationUser(int userId)
+        public async Task<InformationUserViewModel> GetInformationUser(int userId)
         {
-            var user = _userService.GetUserByUserId(userId);
+            var user =await _userService.GetUserByUserId(userId);
             var informationUser = new InformationUserViewModel
             {
                 userName = user.UserName,
@@ -113,8 +126,5 @@ namespace Shop2City.Core.Services.UserPanel
             };
             return informationUser;
         }
-
-  
-  
     }
 }

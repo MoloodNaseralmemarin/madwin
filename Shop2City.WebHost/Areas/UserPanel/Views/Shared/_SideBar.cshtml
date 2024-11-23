@@ -1,22 +1,38 @@
-﻿@inject IUserPanelService UserPanelService
+﻿@using System.Security.Claims
+@inject IUserPanelService UserPanelService
 @inject IPermissionService PermissionService
 @inject IFactorService FactorService
 @inject IOrderService OrderService
 
-@{ 
-    var user = UserPanelService.GetSideBarUserPanelData(User.Identity.Name);
-}
-<aside id="column-right" class="col-sm-3">
+@{
+    int userId = 0;
+    SideBarUserPanelViewModel user = null;
 
+    if (int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out userId) && userId > 0)
+    {
+        user = await UserPanelService.GetSideBarUserPanelDataAsync(userId);
+    }
+}
+
+<aside id="column-right" class="col-sm-3">
     <div class="list-group">
-        <p class="text-center">عضویت : @user.registerDate.ToShamsi()</p>
-        <p class="text-center">@user.fullName</p>
-       
+        @if (user != null)
+        {
+            <p class="text-center">عضویت : @user.registerDate.ToShamsi()</p>
+            <p class="text-center">@user.fullName</p>
+        }
+        else
+        {
+            <p class="text-center text-danger">کاربر یافت نشد</p>
+        }
+
         <hr />
         <h3 class="subtitle">داشبورد</h3>
-        @if (PermissionService.CheckPermission(1, User.Identity.Name))
+
+        @if (await PermissionService.CheckPermissionAsync(1, userId))
         {
             <ul class="list-item">
+                <li><a href="/Home/Index"><span class="text-danger">بازگشت به صفحه اصلی (فروشگاهی)</span></a></li>
                 <li><a href="/Admin/Index"> مدیریت سایت </a></li>
                 <li><a asp-controller="Account" asp-action="Logout">خروج از حساب کاربری</a></li>
             </ul>
@@ -28,22 +44,30 @@
                     <a href="/UserPanel/Factors/FactorForUser"> مشاهده فاکتورها</a>
                     <ul>
                         <li>
-                            <a href="/UserPanel/Factors/FactorForUser?isfinaly=true"> فاکتورهای پرداخت شده &nbsp;<span class="badge rounded-pill btn-success">@FactorService.GetCountFactorIsFinaly(User.Identity.Name)</span></a>
+                            <a href="/UserPanel/Factors/FactorForUser?isfinaly=true">
+                                فاکتورهای پرداخت شده &nbsp;
+                                <span class="badge rounded-pill btn-success">
+                                    @await FactorService.GetCountFactorIsFinaly(userId)
+                                </span>
+                            </a>
                         </li>
                     </ul>
-                    </li>
+                </li>
                 <li>
                     <a href="/UserPanel/Orders/OrderForUser"> مشاهده سفارش ها</a>
                     <ul>
                         <li>
-                            <a href="/UserPanel/Orders/OrderForUser?isfinaly=true"> سفارش های پرداخت شده &nbsp;<span class="badge rounded-pill btn-success">@OrderService.GetCountOrderIsFinaly(User.Identity.Name)</span></a>
+                            <a href="/UserPanel/Orders/OrderForUser?isfinaly=true">
+                                سفارش های پرداخت شده &nbsp;
+                                <span class="badge rounded-pill btn-success">
+                                    @await OrderService.GetCountOrderIsFinaly(userId)
+                                </span>
+                            </a>
                         </li>
                     </ul>
                 </li>
                 <li><a asp-controller="Account" asp-action="Logout">خروج از حساب کاربری</a></li>
             </ul>
         }
-
-      
     </div>
 </aside>

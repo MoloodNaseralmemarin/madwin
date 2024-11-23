@@ -28,14 +28,24 @@ File: Core
 /* =============
    Common
 ============= */
+
+@font-face {
+    font-family: 'WYekan';
+    src: url('../../css/persian-fonts/WYekan.eot?#') format('eot'), url('../../css/persian-fonts/WYekan.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'BKoodakBold';
+    src: url('../../css/persian-fonts/WYekan.eot?#') format('eot'), url('../../css/persian-fonts/BKoodakBold.woff') format('woff'), url('persian-fonts/BKoodakBold.ttf') format('truetype');
+}
 body {
-  background: #ebeff2;
-  font-family: "Roboto", sans-serif;
-  margin: 0;
-  padding-bottom: 60px;
-  padding-right: 0 !important;
-  overflow-x: hidden;
-  font-size: 14px;
+    background: #ebeff2;
+    font-family: "WYekan", sans-serif;
+    margin: 0;
+    padding-bottom: 60px;
+    padding-right: 0 !important;
+    overflow-x: hidden;
+    font-size: 14px;
 }
 
 html {
@@ -45,8 +55,8 @@ html {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  margin: 10px 0;
-  font-family: "Karla", sans-serif;
+    margin: 10px 0;
+    font-family: "WYekan", sans-serif;
 }
 
 h1 {
@@ -162,12 +172,12 @@ a:focus {
 }
 
 .header-title {
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 16px;
-  margin-bottom: 8px;
-  margin-top: 0;
-  font-family: "Karla", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 16px;
+    margin-bottom: 8px;
+    margin-top: 0;
+    font-family: "WYekan", sans-serif;
 }
 
 /* =============

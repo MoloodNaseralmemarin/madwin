@@ -1,22 +1,130 @@
-﻿using Microsoft.AspNetCore.Authorization;using Microsoft.AspNetCore.Mvc;using Shop2City.Core.Services.Factors;using Shop2City.Core.Services.Users;using Shop2City.DataLayer.Entities;namespace Shop2City.WebHost.Areas.UserPanel.Controllers{    [Area("UserPanel")]    [Authorize]    public class FactorsController(IFactorService factorService, IUserService userService) : Controller    {        public IActionResult Index()        {
-            //احتمال داره در این مرحله ی کاربر یک یا بیش از یک محصول انتخاب کند که در اخر با یک شماره فاکتور در دسترس است
-            // //وقتی به این مرحله رسیدم اطلاعات توی جدول Factor ذخیره شده است ولی تکلیف ی سری از فیلدها مشخص نیست
-            #region اطلاعات کاربر برای داشتن شماره موبایل برای ارسال پیامک نیاز دازرم            var user = userService.GetUserByUserName(User.Identity.Name);
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Shop2City.Core.Services.Factors;
+using Shop2City.Core.Services.Users;
+using Shop2City.DataLayer.Entities;
+using Shop2City.DataLayer.Entities.Users;
+
+
+namespace Shop2City.WebHost.Areas.UserPanel.Controllers
+{
+    [Area("UserPanel")]
+    [Authorize]
+    public class FactorsController: Controller
+    {
+        private readonly IFactorService _factorService;
+        private readonly IUserService _userService;
+        public FactorsController(IFactorService factorService, IUserService userService)
+        {
+            _userService= userService;
+            _factorService= factorService;
+        }
+
+        public IActionResult ShowFactor(int id, bool finaly = false, string type = "")
+        {
+            ViewData["TypePost"] = _factorService.TypePosts();
+            var order = _factorService.GetFactorForUserPanel(User.Identity.Name, id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.typeDiscount = type;
+            ViewBag.finaly = finaly;
+            return View(order);
+        }
+
+
+
+
+        [Authorize]
+        public async Task<IActionResult> ShowFactorForUser(int factorId)
+        {
+            int userId = await _userService.GetUserIdByFactorId(factorId);
+            var cellPhone = await _userService.GetCellPhoneByUserId(userId);
+            var factor = _factorService.GetFactorByUserId(userId);
+
+            var listFactorDetails = _factorService.GetAllFactorDetailByFactorId(factorId);
+            //وضعیت پرداخت مشخص میکنم که فاکتور نهایی بشه
+            factor.IsFinaly = true;
+            #region در این مرحله جدول سفارش آپدیت میکنم
+             _factorService.UpdateFactor(factor);
             #endregion
-            #region شناسه فاکتور را براساس شناسه کاربر بدست می آوریم.            var factorId = factorService.GetFactorIdByUserId(user.Id);
+            //در این مرحله ی پیامک به خریدار ارسال می شود.
+            #region Send SMS For User For Factor 
+            try
+            {
+                var otpsms = new Ghasedak.Core.Api("ce805d8405091990a26d5964e2e393667da9422ec5a472edfed717fa3b0aecfa");
+                var res = otpsms.VerifyAsync(1, "PanahPlastSendFactor",
+                new string[] { cellPhone },//شماره خریدار
+                factorId.ToString(), "پناه پلاست");
 
+            }
+            catch (Ghasedak.Core.Exceptions.ApiException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (Ghasedak.Core.Exceptions.ConnectionException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            #region AddSMs
+            var smsorder = new Sms
+            {
+                CellPhone = cellPhone,
+                Message = "در سامانه ثبت شده است." + factorId + "فاکتور شما با کد پیگیری.\r\nفروشگاه آنلاین پناه پلاست \r\n لغو 11"
 
+            };
+           await _userService.AddSMSAsync(smsorder);
+            #endregion
+            #endregion
+            //در این مرحله به ازای هر جزئیات فاکتور یک پیامک به کارفرما ارسال می شود.
+            #region ارسالsms به کارفرما
+            try
+            {
+                var i = 1;
+                foreach (var item in listFactorDetails)
+                {
+                    var tempelete = item.FactorId.ToString() + "-" + listFactorDetails.Count + "-" + i + "نوع" + item.Product.Title + "تعداد" + item.Quantity.ToString();
+                    var otpSms = new Ghasedak.Core.Api("ce805d8405091990a26d5964e2e393667da9422ec5a472edfed717fa3b0aecfa");
+                    var res = otpSms.VerifyAsync(1, "PanahPlastGetFactor",
+                    new string[] { "09180580270", "09182185223" },//09180580270
+                    item.FactorId + "-" + listFactorDetails.Count + "-" + i,
+                    item.Product.Title,
+                    item.Quantity.ToString(),
+                    "پناه پلاست");
+                    i++;
+                    #region AddSMs
 
+                    var sms = new Sms
+                    {
+                        //به وقتش درست کن
+                        CellPhone = "09376421351",//09180580270
+                        Message = "فاکتور" + item.FactorId + "-" + listFactorDetails.Count + "-" + i + " " + "نوع" + item.Product.Title + " " + "تعداد :" + item.Quantity + " " + "با تشکر پناه پلاست لغو 11",
+
+                    };
+                    await _userService.AddSMSAsync(sms);
+                    #endregion
+                }
+            }
+            catch (Ghasedak.Core.Exceptions.ApiException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (Ghasedak.Core.Exceptions.ConnectionException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
             #endregion
-            #region اطلاعات فاکتور را براساس شناسه فاکتور بدست می آوریم            var factor = factorService.GetFactorByFactorId(factorId);
-            #endregion
-            #region لیستی از جزئیات فاکتور براساس شناسه فاکتور بدست می آوریم            var listFactorDetails = factorService.GetAllFactorDetailByFactorId(factorId);
+            return View(factor);
+        }
 
+        public IActionResult UseDiscount(int factorId, string code)
+        {
+            var type = _factorService.UseDiscount(factorId, code);
+            return Redirect("/UserPanel/Factors/ShowFactor/" + factorId + "?type=" + type);
+        }
+    }
+}
 
-
-            #endregion
-            #region در این مرحله جدول فاکتور آپدیت میکنم
-            //وضعیت پرداخت مشخص میکنم که فاکتور نهایی بشه            factor.IsFinaly = true;
-            factorService.UpdateFactor(factor);            #endregion            //در این مرحله ی پیامک به خریدار ارسال می شود.
-            #region Send SMS For User For Factor             try            {                var otpsms = new Ghasedak.Core.Api("ce805d8405091990a26d5964e2e393667da9422ec5a472edfed717fa3b0aecfa");                var res = otpsms.VerifyAsync(1, "PanahPlastSendFactor",                new string[] { user.CellPhone, },//شماره خریدار                factorId.ToString(), "پناه پلاست");            }            catch (Ghasedak.Core.Exceptions.ApiException ex)            {                Console.WriteLine(ex.Message);            }            catch (Ghasedak.Core.Exceptions.ConnectionException ex)            {                Console.WriteLine(ex.Message);            }            #region AddSMs            var smsorder = new Sms            {                CellPhone = user.CellPhone,                Message = "در سامانه ثبت شده است." + factorId + "فاکتور شما با کد پیگیری.\r\nفروشگاه آنلاین پناه پلاست \r\n لغو 11"            };            userService.AddSMS(smsorder);            #endregion            #endregion            //در این مرحله به ازای هر جزئیات فاکتور یک پیامک به کارفرما ارسال می شود.            #region ارسالsms به کارفرما            try            {                var i = 1;                foreach (var item in listFactorDetails)                {                    var tempelete = item.FactorId.ToString() + "-" + listFactorDetails.Count + "-" + i + "نوع" + item.Product.Title + "تعداد" + item.Quantity.ToString();                    var otpSms = new Ghasedak.Core.Api("ce805d8405091990a26d5964e2e393667da9422ec5a472edfed717fa3b0aecfa");                    var res = otpSms.VerifyAsync(1, "PanahPlastGetFactor",                    new string[] { "09180580270","09182185223" },//09180580270                    item.FactorId + "-" + listFactorDetails.Count + "-" + i,                    item.Product.Title,                    item.Quantity.ToString(),                    "پناه پلاست");                    i++;                    #region AddSMs                    var sms = new Sms                    {                        //به وقتش درست کن                        CellPhone = "09376421351",//09180580270                        Message = "فاکتور" + item.FactorId + "-" + listFactorDetails.Count + "-" + i + " " + "نوع" + item.Product.Title +" "+"تعداد :"+item.Quantity+" "+"با تشکر پناه پلاست لغو 11",                    };                    userService.AddSMS(sms);                    #endregion                }            }            catch (Ghasedak.Core.Exceptions.ApiException ex)            {                Console.WriteLine(ex.Message);            }            catch (Ghasedak.Core.Exceptions.ConnectionException ex)            {                Console.WriteLine(ex.Message);            }            #endregion            return View(listFactorDetails);        }        public IActionResult ShowFactor(int id)        {            ViewData["TypePost"] = factorService.TypePosts();            var order = factorService.GetFactorForUserPanel(User.Identity.Name, id);            return View(order);        }        [Authorize]        public IActionResult DeleteFactor(int productId)        {            var userId=userService.GetUserIdByUserName(User.Identity.Name);            factorService.DeleteFactorItem(productId,userId);            return Redirect(Request.Headers["Referer"].ToString());        }        [Authorize]        public IActionResult FactorForUser(bool isFinaly)        {            ViewData["TypePost"] = factorService.TypePosts();            var showFactor = factorService.GetUserFactors(User.Identity.Name, isFinaly);            return View(showFactor);        }    }}

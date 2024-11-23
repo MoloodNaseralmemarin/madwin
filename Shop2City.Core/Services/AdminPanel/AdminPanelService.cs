@@ -24,7 +24,7 @@ namespace Shop2City.Core.Services.AdminPanel
             _context = context;
             _userService = userService;
         }
-        public int AddUserFromAdmin(CreateUserViewModel createUser)
+        public async Task<int> AddUserFromAdmin(CreateUserViewModel createUser)
         {
             var user = new User
             {
@@ -40,19 +40,19 @@ namespace Shop2City.Core.Services.AdminPanel
                 Description="توضیحی درج نشده است",
                 UserName = createUser.userName
             };
-            return _userService.AddUser(user);
+            return await _userService.AddUserAsync(user);
         }
 
-        public void DeleteUserFromAdmin(int userId)
+        public async void DeleteUserFromAdmin(int userId)
         {
-            User user = _userService.GetUserByUserId(userId);
+            User user =await _userService.GetUserByUserId(userId);
             user.IsDelete = true;
             _userService.UpdateUser(user);
         }
 
-        public void EditUserFromAdmin(EditUserViewModel editUser)
+        public async void EditUserFromAdmin(EditUserViewModel editUser)
         {
-            var user = _userService.GetUserByUserId(editUser.userId);
+            var user =await _userService.GetUserByUserId(editUser.userId);
             user.CellPhone = editUser.cellPhone;
             user.TelPhone = editUser.tellPhone;
             user.Address = editUser.address;

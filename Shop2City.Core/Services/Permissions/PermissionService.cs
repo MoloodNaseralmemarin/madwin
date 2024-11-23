@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Shop2City.Core.Services.Users;
 using Shop2City.DataLayer.Context;
 using Shop2City.DataLayer.Entities.Permissions;
 using Shop2City.DataLayer.Entities.Users;
@@ -11,9 +14,11 @@ namespace Shop2City.Core.Services.Permissions
     public class PermissionService : IPermissionService
     {
         private Shop2CityContext _context;
-        public PermissionService(Shop2CityContext context)
+        private readonly ILogger<PermissionService> _logger;
+        public PermissionService(Shop2CityContext context, ILogger<PermissionService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public void AddPermissionsToRole(int roleId, List<int> permissions)
@@ -49,16 +54,14 @@ namespace Shop2City.Core.Services.Permissions
             _context.SaveChanges();
         }
 
-        public bool CheckPermission(int permissionId, string userName)
+        public async Task<bool> CheckPermissionAsync(int permissionId, int userId)
         {
-            
-            int userId = _context.Users
-                .Single(u => u.UserName == userName).Id;
 
-            List<int> UserRoles = _context.UserRoles
+
+            List<int> UserRoles = await _context.UserRoles
                 .Where(r => r.userId == userId)
                 .Select(r => r.roleId)
-                .ToList();
+                .ToListAsync();
 
             if (!UserRoles.Any())
                 return false;
@@ -69,6 +72,7 @@ namespace Shop2City.Core.Services.Permissions
 
             return RolesPermission.Any(p => UserRoles.Contains(p));
         }
+        
 
         public bool CheckPermission(int permissionId)
         {

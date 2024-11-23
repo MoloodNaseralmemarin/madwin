@@ -5,7 +5,7 @@ $(document).ready(function() {
         "columns": [
             { "data": "name" },
             { "data": "description" },
-            { "data": "Price" },
+            { "data": "price" },
             { "data": "category.name" },
             {
                 "data": "id",

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Shop2City.DataLayer.Entities;
+using Shop2City.DataLayer.Entities.Advices;
 using Shop2City.DataLayer.Entities.Calculations;
 using Shop2City.DataLayer.Entities.DisCounts;
 using Shop2City.DataLayer.Entities.Ordering;
@@ -11,6 +12,7 @@ using Shop2City.DataLayer.Entities.Settings;
 using Shop2City.DataLayer.Entities.ShoppingCartItems;
 using Shop2City.DataLayer.Entities.ShoppingCarts;
 using Shop2City.DataLayer.Entities.Slideshows;
+using Shop2City.DataLayer.Entities.Transactions;
 using Shop2City.DataLayer.Entities.Users;
 using ShoppingCart = Shop2City.DataLayer.Entities.ShoppingCarts.ShoppingCart;
 
@@ -80,6 +82,10 @@ namespace Shop2City.DataLayer.Context
         public virtual DbSet<Sms> Sms { get; set; }
 
         public virtual DbSet<WageModel> Wages { get; set; }
+
+        public virtual DbSet<AdviceModel> Advices { get; set; }
+
+        public virtual DbSet<TransactionModel> Transactions { get; set; }
 
         #region shoppingCart
         public virtual DbSet<ShoppingCart> ShoppingCarts { get; set; }

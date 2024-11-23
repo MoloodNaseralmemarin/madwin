@@ -634,7 +634,6 @@ namespace Shop2City.Core.Services.Products
                 .ToList();
             return Tuple.Create(query, pagequantity);
         }
-
     }
 }
 

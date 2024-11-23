@@ -18,6 +18,7 @@ namespace Shop2City.WebHost.Pages.Admin.Products
 
         [BindProperty]
         public Product editProduct { get; set; }
+      
 
         public void OnGet(int id)
         {
@@ -37,9 +38,10 @@ namespace Shop2City.WebHost.Pages.Admin.Products
             #endregion
         }
 
-        public IActionResult OnPost()
-        {
+        public IActionResult OnPost(bool isStatus)
+         {
             var userName = User.Identity.Name;
+            editProduct.IsStatus = isStatus;
             _productService.UpdateProduct(editProduct,userName);
             return RedirectToPage("Index");
         }

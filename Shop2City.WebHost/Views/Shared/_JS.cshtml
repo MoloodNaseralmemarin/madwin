@@ -11,7 +11,13 @@
 <script type="text/javascript" src="~/js/custom.js"></script>
 <script src="~/js/jquery.validate.min.js"></script>
 <script src="~/js/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/js/persian-date.min.js"></script>
+<script src="~/js/persian-datepicker.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
+
+<script src="~/toastr.js/toastr.min.js"></script>
+
+
 <script src="https://use.fontawesome.com/fa1d1fd482.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
@@ -216,6 +222,24 @@
             $("#Price-total").html(result.item2.toLocaleString()) + " تومان ";
 
     });
+    });
+
+
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-bottom-left",
+        "timeOut": "5000"
+    };
+
+
+    $(document).ready(function () {
+        var Loginmessage = '@TempData["LoginSuccessMessage"]';
+        if (Loginmessage) {
+            toastr.success(Loginmessage);
+            setTimeout(function () { window.location = "/UserPanel"; }, 5000);
+        }
+        
     });
 </script>
 

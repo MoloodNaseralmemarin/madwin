@@ -30,11 +30,10 @@ namespace Shop2City.WebHost.Pages.Admin.Products
 
             var subCategory = _productService.GetSubCategoryForManageProduct(int.Parse(category.First().Value));
             ViewData["SubCategory"] = new SelectList(subCategory, "Value", "Text");
-
             #endregion
         }
 
-        public IActionResult OnPost()
+        public IActionResult OnPost(bool isStatus)
         {
             if (!ModelState.IsValid)
             {
@@ -48,6 +47,7 @@ namespace Shop2City.WebHost.Pages.Admin.Products
             }
             if (User.Identity == null) return RedirectToPage("Index");
             var userName = User.Identity.Name;
+            createProduct.IsStatus = isStatus;
             if (userName != null) _productService.AddProduct(createProduct, userName);
             return RedirectToPage("Index");
         }

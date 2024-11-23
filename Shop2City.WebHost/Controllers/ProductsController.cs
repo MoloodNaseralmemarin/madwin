@@ -59,8 +59,8 @@ namespace Shop2City.WebHost.Controllers
                 _orderService.AddFactor(User.Identity.Name, item.ProductId,item.Count);
             }
             var order = _context.Factors
-                .FirstOrDefault(o => o.userId == userId && !o.IsFinaly);
-            return Redirect("/UserPanel/Factors/ShowFactor/"+order.FactorId);
+                .FirstOrDefault(o => o.UserId == userId && !o.IsFinaly);
+            return Redirect("/UserPanel/Factors/ShowFactor/"+order.Id);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Shop2City.Core.Services.Permissions
 
         void UpdatePermissionsToRole(int roleId, List<int> permissions);
 
-        bool CheckPermission(int permissionId, string userName);
+        Task<bool> CheckPermissionAsync(int permissionId, int userId);
 
         bool CheckPermission(int permissionId);
         #endregion

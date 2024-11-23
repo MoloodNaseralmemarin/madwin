@@ -9,6 +9,9 @@
             <form method="post" enctype="multipart/form-data">
                 <input type="hidden" asp-for="editProduct.Id" />
                 <input type="hidden" asp-for="editProduct.UserId" />
+                <input type="hidden" asp-for="editProduct.ProductGroupId" />
+                <input type="hidden" asp-for="editProduct.CategoryId" />
+                <input type="hidden" asp-for="editProduct.SubCategoryId" />
                 <input type="hidden" asp-for="editProduct.CreateDate" />
                 <input type="hidden" asp-for="editProduct.LastUpdateDate" />
                 <h2>اطلاعات موارد مصرفی</h2>
@@ -33,12 +36,17 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-6">
+                        <label class="col-form-label" asp-for="editProduct.IsStatus"></label>
+                        <select class="form-control" name="isStatus">
+                            <option value="true"> موجود </option>
+                            <option value="false"> ناموجود </option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
                         <label class="col-form-label" asp-for="editProduct.Price"></label>
                         <input class="form-control" asp-for="editProduct.Price" type="text">
                         <span asp-validation-for="editProduct.Price" class="text-danger"></span>
-                    </div>
-                    <div class="form-group col-md-4">
                     </div>
                 </div>
                 <div class="form-row">
